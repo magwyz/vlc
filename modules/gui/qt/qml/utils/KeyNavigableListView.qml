@@ -52,6 +52,23 @@ NavigableFocusScope {
 
     property alias highlightMoveVelocity: view.highlightMoveVelocity
 
+    property alias section: view.section
+
+    Component {
+        id: sectionHeading
+        Rectangle {
+            width: container.width
+            height: childrenRect.height
+            color: "lightsteelblue"
+
+            Text {
+                text: section
+                font.bold: true
+                font.pixelSize: 20
+            }
+        }
+    }
+
     ListView {
         id: view
         anchors.fill: parent
@@ -65,6 +82,10 @@ NavigableFocusScope {
 
         highlightMoveDuration: 300 //ms
         highlightMoveVelocity: 1000 //px/s
+
+        section.property: ""
+        section.criteria: ViewSection.FullString
+        section.delegate: sectionHeading
 
         Connections {
             target: view.currentItem
