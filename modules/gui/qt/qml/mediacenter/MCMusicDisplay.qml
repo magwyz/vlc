@@ -169,7 +169,6 @@ Utils.NavigableFocusScope {
                         hoverEnabled: true
 
                         background: Rectangle {
-                            radius: 5 //fixme
                             color: VLCStyle.colors.button
                             border.color: {
                                 if ( searchBox.text.length < 3 && searchBox.text.length !== 0 )
