@@ -24,13 +24,17 @@ ComboBox {
     id: control
 
     font.pixelSize: VLCStyle.fontSize_normal
+    leftPadding: VLCStyle.margin_xsmall
+    rightPadding: VLCStyle.margin_xsmall
 
     delegate: ItemDelegate {
         width: control.width
-        leftPadding: control.leftPadding
         background: Item {}
         contentItem: Text {
             text: control.textRole ? (Array.isArray(control.model) ? modelData[control.textRole] : model[control.textRole]) : modelData
+            anchors.fill: parent
+            leftPadding: control.leftPadding
+            rightPadding: control.rightPadding
             color: VLCStyle.colors.buttonText
             font: control.font
             elide: Text.ElideRight
@@ -64,9 +68,9 @@ ComboBox {
     }
 
     contentItem: Text {
-        leftPadding: 0
-        rightPadding: control.indicator.width + control.spacing
-
+        anchors.fill: parent
+        leftPadding: control.leftPadding
+        rightPadding: control.indicator.width + control.rightPadding
         text: control.displayText
         font: control.font
         color: VLCStyle.colors.buttonText
