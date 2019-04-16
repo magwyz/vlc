@@ -98,17 +98,6 @@ NavigableFocusScope {
                         }
                     }
                 }
-
-                Rectangle {
-                    color: VLCStyle.colors.buttonBorder
-                    antialiasing: true
-                    anchors{
-                        right: parent.right
-                        bottom: parent.bottom
-                        left: parent    .left
-                    }
-                    height: 1
-                }
             }
         }
     }
@@ -174,14 +163,6 @@ NavigableFocusScope {
                         }
                     }
                 }
-            }
-
-            //line below
-            Rectangle {
-                color: VLCStyle.colors.buttonBorder
-                height: 1
-                width: parent.width
-                anchors.bottom: parent.bottom
             }
         }
 
