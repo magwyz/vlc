@@ -18,6 +18,8 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.4
 
+import "qrc:///style/"
+
 NavigableFocusScope {
     id: listview_id
 
@@ -57,14 +59,23 @@ NavigableFocusScope {
     Component {
         id: sectionHeading
         Rectangle {
-            width: container.width
+            width: parent.width
             height: childrenRect.height
-            color: "lightsteelblue"
 
-            Text {
-                text: section
-                font.bold: true
-                font.pixelSize: 20
+            Column {
+                width: parent.width
+
+                Text {
+                    text: section
+                    font.pixelSize: 20
+                    color: VLCStyle.colors.accent
+                }
+
+                Rectangle {
+                    width: parent.width
+                    height: 1
+                    color: VLCStyle.colors.textInactive
+                }
             }
         }
     }
