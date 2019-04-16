@@ -114,59 +114,6 @@ NavigableFocusScope {
         model : delegateModel.parts.list
         modelCount: delegateModel.items.count
 
-        header: Rectangle {
-            height: VLCStyle.fontHeight_normal
-            width: parent.width
-            color: VLCStyle.colors.button
-
-            Row {
-                anchors.fill: parent
-                Repeater {
-                    model: sortModel
-                    MouseArea {
-                        height: VLCStyle.fontHeight_normal
-                        width: model.width * view.width
-                        //Layout.alignment: Qt.AlignVCenter
-
-                        Text {
-                            text: model.text
-                            elide: Text.ElideRight
-                            font {
-                                bold: true
-                                pixelSize: VLCStyle.fontSize_normal
-
-                            }
-                            color: VLCStyle.colors.buttonText
-                            horizontalAlignment: Text.AlignLeft
-                            anchors {
-                                fill: parent
-                                leftMargin: VLCStyle.margin_xxsmall
-                                rightMargin: VLCStyle.margin_xxsmall
-                            }
-                        }
-
-                        Text {
-                            text: (root.model.sortOrder === Qt.AscendingOrder) ? "▼" : "▲"
-                            visible: root.model.sortCriteria === model.criteria
-                            font.pixelSize: VLCStyle.fontSize_normal
-                            color: VLCStyle.colors.accent
-                            anchors {
-                                right: parent.right
-                                leftMargin: VLCStyle.margin_xxsmall
-                                rightMargin: VLCStyle.margin_xxsmall
-                            }
-                        }
-                        onClicked: {
-                            if (root.model.sortCriteria !== model.criteria)
-                                root.model.sortCriteria = model.criteria
-                            else
-                                root.model.sortOrder = (root.model.sortOrder === Qt.AscendingOrder) ? Qt.DescendingOrder : Qt.AscendingOrder
-                        }
-                    }
-                }
-            }
-        }
-
         onSelectAll: delegateModel.selectAll()
         onSelectionUpdated: delegateModel.updateSelection( keyModifiers, oldIndex, newIndex )
         onActionLeft: root.actionLeft(index)
