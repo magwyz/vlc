@@ -86,6 +86,8 @@ Utils.NavigableFocusScope {
 
                 RowLayout {
                     anchors.fill: parent
+                    anchors.leftMargin: VLCStyle.margin_small
+                    anchors.rightMargin: VLCStyle.margin_small
 
                     TabBar {
                         id: bar
@@ -223,6 +225,7 @@ Utils.NavigableFocusScope {
             id: stackView
             Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.margins: VLCStyle.margin_normal
             focus: true
 
             Component.onCompleted: {
