@@ -84,7 +84,6 @@ ComboBox {
         color: VLCStyle.colors.button
         border.color: control.activeFocus ? VLCStyle.colors.accent : VLCStyle.colors.buttonBorder
         border.width: control.activeFocus ? 2 : 1
-        radius: 2
     }
 
     popup: Popup {
@@ -117,7 +116,6 @@ ComboBox {
         background: Rectangle {
             color: VLCStyle.colors.button
             border.color: VLCStyle.colors.buttonBorder
-            radius: 2
         }
     }
 }
