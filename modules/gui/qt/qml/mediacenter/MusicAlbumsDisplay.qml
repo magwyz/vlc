@@ -114,7 +114,7 @@ Utils.NavigableFocusScope {
             activeFocusOnTab:true
 
             cellWidth: VLCStyle.cover_normal + VLCStyle.margin_small
-            cellHeight: VLCStyle.cover_normal + VLCStyle.fontHeight_normal * 2 + VLCStyle.margin_small
+            cellHeight: VLCStyle.cover_normal + VLCStyle.fontHeight_normal * 2
 
             customDelegate: Utils.GridItem {
                 property variant model: MLAlbumModel{}
@@ -124,7 +124,7 @@ Utils.NavigableFocusScope {
                 title: model.title || qsTr("Unknown title")
                 subtitle: model.main_artist || qsTr("Unknown artist")
                 //selected: element.DelegateModel.inSelected || view.currentItem.currentIndex === index
-                selected: view.currentItem.currentIndex === index
+                selected: delegateModel.items.get(index).inSelected
                 onItemClicked : {
                     delegateModel.updateSelection( modifier , view.currentItem.currentIndex, index)
                     view.currentItem.currentIndex = index
