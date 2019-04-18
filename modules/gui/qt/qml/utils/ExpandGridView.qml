@@ -267,24 +267,48 @@ NavigableFocusScope {
         }
     }
 
+    PropertyAnimation {
+        id: animateContentY;
+        target: flickable;
+        properties: "contentY"
+        duration: 1
+    }
+
+    function animateFlickableContentY( newContentY ) {
+        if (newContentY === flickable.contentY) {
+            flickable.contentY = newContentY
+        } else {
+            animateContentY.stop()
+            animateContentY.duration = Math.abs(newContentY - flickable.contentY) / 0.5
+            animateContentY.from = flickable.contentY
+            animateContentY.to = newContentY
+            animateContentY.start()
+        }
+    }
+
     onCurrentIndexChanged: {
+        var newContentY = flickable.contentY;
         if ( flickable._yOfIndex(root.currentIndex) + root.cellHeight > flickable.bottomContentY) {
             //move viewport to see expanded item bottom
-            flickable.contentY = Math.min(
+            newContentY = Math.min(
                         flickable._yOfIndex(root.currentIndex) + root.cellHeight - flickable.height, // + flickable.marginBottom,
                         flickable.contentHeight - flickable.height)
         } else if (flickable._yOfIndex(root.currentIndex)  < flickable.contentY) {
             //move viewport to see expanded item at top
-            flickable.contentY = Math.max(
+            newContentY = Math.max(
                         flickable._yOfIndex(root.currentIndex) - root.marginTop,
                         0)
         }
+
+        animateFlickableContentY(newContentY)
     }
 
     onExpandIndexChanged: {
         if (expandIndex != -1) {
             //move viewport to see expanded item at top
-            flickable.contentY = Math.max( (flickable._rowOfIndex( root.expandIndex ) * root.cellHeight) - root.marginTop, 0)
+            var newContentY = Math.max( (flickable._rowOfIndex( root.expandIndex ) * root.cellHeight) - root.marginTop, 0)
+
+            animateFlickableContentY(newContentY)
         }
     }
 
