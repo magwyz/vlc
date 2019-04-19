@@ -30,11 +30,15 @@ Utils.NavigableFocusScope {
     //color: VLCStyle.colors.bg
     implicitHeight: layout.height
 
+    width: parent.width
+
     Row {
         id: layout
         spacing: VLCStyle.margin_xsmall
         width: parent.width
         height: Math.max(expand_infos_id.height, artAndControl.height)
+
+        onHeightChanged: console.log("row height: ", height)
 
         FocusScope {
             id: artAndControl
