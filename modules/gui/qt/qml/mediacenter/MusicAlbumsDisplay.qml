@@ -48,6 +48,7 @@ Utils.NavigableFocusScope {
             ml: medialib
         }
 
+
         delegate: Package {
             id: element
 
@@ -58,12 +59,11 @@ Utils.NavigableFocusScope {
                 subtitle: model.main_artist || qsTr("Unknown artist")
                 selected: element.DelegateModel.inSelected || view.currentItem.currentIndex === index
                 shiftX: view.currentItem.shiftX(model.index)
-
                 onItemClicked : {
-                    view._switchExpandItem( index )
                     delegateModel.updateSelection( modifier , view.currentItem.currentIndex, index)
                     view.currentItem.currentIndex = index
                     view.currentItem.forceActiveFocus()
+                    view._switchExpandItem( index )
 
                 }
                 onPlayClicked: medialib.addAndPlay( model.id )
@@ -79,10 +79,10 @@ Utils.NavigableFocusScope {
                 shiftX: view.currentItem.shiftX(model.index)
 
                 onItemClicked : {
-                    view._switchExpandItem( index )
                     delegateModel.updateSelection( modifier , view.currentItem.currentIndex, index)
                     view.currentItem.currentIndex = index
                     view.currentItem.forceActiveFocus()
+                    view._switchExpandItem( index )
                 }
                 onPlayClicked: medialib.addAndPlay( model.id )
                 onAddToPlaylistClicked : medialib.addToPlaylist( model.id )
@@ -250,10 +250,13 @@ Utils.NavigableFocusScope {
         }
 
         function _switchExpandItem(index) {
-            if (view.currentItem.expandIndex === index)
+            console.log("_switchExpandItem")
+            view.currentItem.switchExpandItem(index)
+
+            /*if (view.currentItem.expandIndex === index)
                 view.currentItem.expandIndex = -1
             else
-                view.currentItem.expandIndex = index
+                view.currentItem.expandIndex = index*/
         }
     }
 
