@@ -101,12 +101,13 @@ NavigableFocusScope {
                 clip: true
 
                 property variant model
-                property Item expandItem
+                property Item expandItem: root.expandDelegate.createObject(contentItem, {"visible": false})
 
                 anchors.fill: parent
 
                 onWidthChanged: { layout() }
                 onHeightChanged: { layout() }
+                onContentYChanged: { layout() }
 
                 function getNbItemsPerRow() {
                     return Math.max(Math.floor(width / root.cellWidth), 1)
@@ -136,38 +137,106 @@ NavigableFocusScope {
                     return ret
                 }
 
-                function makeChildItems() {
-                    var i
-                    for (i = contentItem.children.length; i > 0 ; i--)
-                        contentItem.children[i-1].destroy()
-                    contentItem.children = []
+                property variant idChildrenMap: ({})
 
-                    for (i = 0; i < model.count; ++i) {
-                        var m = model.items.get(i).model
-                        root.customDelegate.createObject(contentItem, {"model": m, "index": i});
+                function getFirstAndLastInstanciatedItemIds() {
+                    var contentYWithoutExpand = contentY
+                    if (root.expandIndex !== -1) {
+                        if (contentY >= expandItem.y && contentY < expandItem.y + expandItem.height)
+                            contentYWithoutExpand = expandItem.y
+                        if (contentY >= expandItem.y + expandItem.height)
+                            contentYWithoutExpand = contentY - expandItem.height
                     }
 
-                    expandItem = root.expandDelegate.createObject(contentItem, {"visible": false})
+                    var rowId = Math.floor(contentYWithoutExpand / root.cellHeight)
+                    var firstId = Math.max(rowId * getNbItemsPerRow(), 0)
+
+                    rowId = Math.ceil((contentYWithoutExpand + height) / root.cellHeight)
+                    var lastId = Math.min(rowId * getNbItemsPerRow(), model.count - 1)
+                    console.log([firstId, lastId])
+                    return [firstId, lastId]
+                }
+
+                function getChild(id, toUse) {
+                    var ret
+                    if (id in idChildrenMap) {
+                        ret = idChildrenMap[id]
+                    }
+                    else {
+                        /*if (toUse.length === 0)
+                            throw "Not enough created delegates: " + Object.keys(idChildrenMap).length;*/
+                        ret = toUse.pop()
+                        idChildrenMap[id] = ret
+                    }
+
+                    if (ret === undefined)
+                        throw "could not get child"
+
+                    return ret
                 }
 
                 function layout() {
+                    var i
                     var topGridEndId = getTopGridEndId()
-                    console.log("topGridEndId ", topGridEndId)
 
-                    for (var i = 0; i < topGridEndId; ++i) {
+                    var f_l = getFirstAndLastInstanciatedItemIds()
+                    var nbItems = f_l[1] - f_l[0]
+                    var firstId = f_l[0]
+                    var lastId = f_l[1]
+
+                    // Clean the no longer used ids
+                    var toKeep = {}
+                    var toUse = []
+                    for (var id in idChildrenMap) {
+                        var val = idChildrenMap[id]
+                        if (id >= firstId && id < lastId)
+                            toKeep[id] = val
+                        else {
+                            toUse.push(val)
+                            val.visible = false
+                        }
+                    }
+                    idChildrenMap = toKeep
+
+                    /*console.log("nbItems", nbItems)
+
+                    console.log("toKeep: ", Object.keys(toKeep).length)
+                    console.log("toUse: ", toUse.length)
+
+                    console.log("firstId", firstId)
+                    console.log("lastId", lastId)
+                    console.log("topGridEndId", topGridEndId)*/
+
+                    // Create delegates if we do not have enough
+                    if (nbItems > toUse.length + Object.keys(toKeep).length) {
+                        var toCreate = nbItems - (toUse.length + Object.keys(toKeep).length)
+                        console.log("tocreate", toCreate)
+                        for (i = 0; i < toCreate; ++i) {
+                            val = root.customDelegate.createObject(contentItem);
+                            toUse.push(val)
+                        }
+                    }
+
+                    for (i = firstId; i < Math.min(topGridEndId, lastId); ++i) {
                         var pos = getItemPos(i)
-                        var item = contentItem.children[i]
+                        var item = getChild(i, toUse)
+                        item.model = model.items.get(i).model
+                        item.index = i
                         item.x = pos[0]
                         item.y = pos[1]
+                        item.visible = true
                     }
 
                     expandItem.y = getItemPos(topGridEndId)[1]
 
-                    for (i = topGridEndId; i < model.count; ++i) {
+                    for (i = topGridEndId; i < lastId; ++i) {
                         pos = getItemPos(i)
-                        item = contentItem.children[i]
+                        item = getChild(i, toUse)
+                        item.model = model.items.get(i).model
+                        item.index = i
                         item.x = pos[0]
                         item.y = pos[1] + expandItem.height
+                        item.visible = true
                     }
 
                     var newContentHeight = getItemPos(model.count - 1)[1] + root.cellHeight
@@ -180,7 +249,7 @@ NavigableFocusScope {
                 Connections {
                     target: model.items
                     onChanged: {
-                        topView.makeChildItems()
+                        topView.layout()
                     }
                 }
 
