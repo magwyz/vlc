@@ -31,36 +31,22 @@ NavigableFocusScope {
     property int marginTop: root.cellHeight / 3
 
     //model to be rendered, model has to be passed twice, as they cannot be shared between views
-    property alias modelTop: topView.model
-    property alias modelBottom: bottomView.model
+    property alias model: topView.model
+    property variant modelTop
     property int modelCount: 0
-
-    property alias delegateTop: topView.delegate
-    property alias delegateBottom: bottomView.delegate
 
     property int currentIndex: 0
 
     /// the id of the item to be expanded
     property int expandIndex: -1
     //delegate to display the extended item
+    property Component customDelegate: Item{}
     property Component expandDelegate: Item{}
 
     //signals emitted when selected items is updated from keyboard
     signal selectionUpdated( int keyModifiers, int oldIndex,int newIndex )
     signal selectAll()
     signal actionAtIndex(int index)
-
-    property alias contentY: flickable.contentY
-    property alias interactive: flickable.interactive
-    property alias clip: flickable.clip
-    property alias contentHeight: flickable.contentHeight
-    property alias contentWidth: flickable.contentWidth
-
-    //compute a delta that can be applied to grid elements to obtain an horizontal distribution
-    function shiftX( index ) {
-        var rightSpace = width - (flickable._colCount * root.cellWidth)
-        return ((index % flickable._colCount) + 1) * (rightSpace / (flickable._colCount + 1))
-    }
 
     property variant _retractCallback
     property int _newExpandIndex: -1
@@ -73,29 +59,7 @@ NavigableFocusScope {
         else
             _newExpandIndex = index
 
-        if (expandIndex !== -1) {
-            animateRetractItem.duration = expandItem.height / _expandRetractSpeed
-            animateRetractItem.start()
-        }
-        else
-            expandIndex = _newExpandIndex
-    }
-
-    function _expand() {
-        if (expandIndex !== -1) {
-            //move viewport to see expanded item at top
-            var newContentY = Math.min(
-                flickable._rowOfIndex(root.expandIndex) * root.cellHeight,
-                Math.max(flickable.contentHeight + expandItem.height - flickable.height, 0)
-            )
-            animateFlickableContentY(newContentY)
-
-            // Expand the item
-            animateExpandItem.stop()
-            animateExpandItem.duration = expandItem.height / _expandRetractSpeed
-            animateExpandItem.to = expandItem.height
-            animateExpandItem.start()
-        }
+        expandIndex = _newExpandIndex
     }
 
     PropertyAnimation {
@@ -115,32 +79,11 @@ NavigableFocusScope {
         from: 0
     }
 
-    Connections {
-        target: expandItem
-        onHeightChanged: {
-            _expand()
-        }
-    }
-
-    Flickable {
-        id: flickable
-
-        anchors.fill: parent
-        clip: true
-
-        //ScrollBar.vertical: ScrollBar { }
-
-        //disable bound behaviors to avoid visual artifacts around the expand delegate
-        boundsBehavior: Flickable.StopAtBounds
-
-
         // number of elements per row, for internal computation
         property int _colCount: Math.floor(width / root.cellWidth)
-        property int _bottomContentY: flickable.contentY + flickable.height
+        property int _bottomContentY: contentY + height
 
         property bool _expandActive: root.expandIndex !== -1
-
-        contentHeight: col.height
 
         function _rowOfIndex( index ) {
             return Math.ceil( (index + 1) / flickable._colCount) - 1
@@ -151,109 +94,114 @@ NavigableFocusScope {
             return flickable._rowOfIndex(index) * root.cellHeight
         }
 
-        Column {
-            id: col
-            width: parent.width
-            spacing: 0
 
             //Gridview visible above the expanded item
-            GridView {
+            Flickable {
                 id: topView
                 clip: true
-                interactive: false
 
-                focus: !flickable._expandActive
+                property variant model
+                property Item expandItem
 
-                highlightFollowsCurrentItem: false
-                currentIndex: root.currentIndex
+                anchors.fill: parent
 
-                cellWidth: root.cellWidth
-                cellHeight: root.cellHeight
+                onWidthChanged: { layout() }
+                onHeightChanged: { layout() }
 
-                anchors.left: parent.left
-                anchors.right: parent.right
+                function getNbItemsPerRow() {
+                    return Math.max(Math.floor(width / root.cellWidth), 1)
+                }
 
-                states: [
-                    //expand is unactive or below the view
-                    State {
-                        name: "noexpand"
-                        when: !flickable._expandActive
-                        PropertyChanges {
-                            target: topView
-                            height: contentHeight
-                        }
-                    },
-                    //expand is active and within the view
-                    State {
-                        name: "expand"
-                        when: flickable._expandActive
-                        PropertyChanges {
-                            target: topView
-                            height: flickable._yOfIndex( root.expandIndex ) + root.cellHeight
-                        }
+                function getItemRowCol(id) {
+                    var nbItemsPerRow = getNbItemsPerRow()
+                    var rowId = Math.floor(id / nbItemsPerRow)
+                    var colId = id % nbItemsPerRow
+                    return [colId, rowId]
+                }
+
+                function getItemPos(id) {
+                    var rowCol = getItemRowCol(id)
+                    return [rowCol[0] * root.cellWidth, rowCol[1] * root.cellHeight]
+                }
+
+                function getTopGridEndId() {
+                    var ret
+                    if (root.expandIndex !== -1) {
+                        var rowCol = getItemRowCol(root.expandIndex)
+                        var rowId = rowCol[1] + 1
+                        ret = rowId * getNbItemsPerRow()
+                    } else {
+                        ret = model.count
                     }
-                ]
-            }
-            //Expanded item view
-            Flickable {
-                id: panel
+                    return ret
+                }
 
-                clip: true
-                width: parent.width
-                height: 0
+                function makeChildItems() {
+                    var i
+                    for (i = contentItem.children.length; i > 0 ; i--)
+                        contentItem.children[i-1].destroy()
+                    contentItem.children = []
 
-                Loader {
-                    id: expandItem
-                    sourceComponent: root.expandDelegate
-                    focus: flickable._expandActive
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    onLoaded: console.log("onLoaded")
+                    for (i = 0; i < model.count; ++i) {
+                        var m = model.items.get(i).model
+                        root.customDelegate.createObject(contentItem, {"model": m, "index": i});
+                    }
+
+                    expandItem = root.expandDelegate.createObject(contentItem, {"visible": false})
+                }
+
+                function layout() {
+                    var topGridEndId = getTopGridEndId()
+                    console.log("topGridEndId ", topGridEndId)
+
+                    for (var i = 0; i < topGridEndId; ++i) {
+                        var pos = getItemPos(i)
+                        var item = contentItem.children[i]
+                        item.x = pos[0]
+                        item.y = pos[1]
+                    }
+
+                    expandItem.y = getItemPos(topGridEndId)[1]
+
+                    for (i = topGridEndId; i < model.count; ++i) {
+                        pos = getItemPos(i)
+                        item = contentItem.children[i]
+                        item.x = pos[0]
+                        item.y = pos[1] + expandItem.height
+                    }
+
+                    var newContentHeight = getItemPos(model.count - 1)[1] + root.cellHeight
+                    if (root.expandIndex != -1)
+                        newContentHeight += expandItem.height
+
+                    contentHeight = newContentHeight
+                }
+
+                Connections {
+                    target: model.items
+                    onChanged: {
+                        topView.makeChildItems()
+                    }
+                }
+
+                Connections {
+                    target: root
+                    onExpandIndexChanged: {
+                        if (root.expandIndex !== -1)
+                            topView.expandItem.visible = true
+                        else
+                            topView.expandItem.visible = false
+                        topView.layout()
+                    }
+                }
+
+                Connections {
+                    target: topView.expandItem
+                    onHeightChanged: {
+                        topView.layout()
+                    }
                 }
             }
-
-
-
-            //Gridview visible below the expand item
-            GridView {
-                id: bottomView
-                clip: true
-                interactive: false
-                highlightFollowsCurrentItem: false
-
-                cellWidth: root.cellWidth
-                cellHeight: root.cellHeight
-
-                anchors.left: parent.left
-                anchors.right: parent.right
-
-                states: [
-                    //expand is unactive or below the view
-                    State {
-                        name: "noexpand"
-                        when: !flickable._expandActive
-                        PropertyChanges {
-                            target: bottomView
-                            visible: false
-                            enabled: false
-                        }
-                    },
-                    //expand is active and within the view
-                    State {
-                        name: "expand"
-                        when: flickable._expandActive
-                        PropertyChanges {
-                            target: bottomView
-                            contentY: flickable._yOfIndex( root.expandIndex ) + root.cellHeight
-                            height: contentHeight - contentY
-                            visible: true
-                            enabled: true
-                        }
-                    }
-                ]
-            }
-        }
-    }
 
     PropertyAnimation {
         id: animateContentY;
@@ -271,10 +219,6 @@ NavigableFocusScope {
             animateContentY.to = newContentY
             animateContentY.start()
         }
-    }
-
-    onExpandIndexChanged: {
-        _expand()
     }
 
     onCurrentIndexChanged: {

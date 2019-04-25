@@ -58,31 +58,12 @@ Utils.NavigableFocusScope {
                 title: model.title || qsTr("Unknown title")
                 subtitle: model.main_artist || qsTr("Unknown artist")
                 selected: element.DelegateModel.inSelected || view.currentItem.currentIndex === index
-                shiftX: view.currentItem.shiftX(model.index)
                 onItemClicked : {
                     delegateModel.updateSelection( modifier , view.currentItem.currentIndex, index)
                     view.currentItem.currentIndex = index
                     view.currentItem.forceActiveFocus()
                     view._switchExpandItem( index )
 
-                }
-                onPlayClicked: medialib.addAndPlay( model.id )
-                onAddToPlaylistClicked : medialib.addToPlaylist( model.id )
-            }
-
-            Utils.GridItem {
-                Package.name: "gridBottom"
-                image: model.cover || VLCStyle.noArtAlbum
-                title: model.title || qsTr("Unknown title")
-                subtitle: model.main_artist || qsTr("Unknown artist")
-                selected: element.DelegateModel.inSelected || view.currentItem.currentIndex === index
-                shiftX: view.currentItem.shiftX(model.index)
-
-                onItemClicked : {
-                    delegateModel.updateSelection( modifier , view.currentItem.currentIndex, index)
-                    view.currentItem.currentIndex = index
-                    view.currentItem.forceActiveFocus()
-                    view._switchExpandItem( index )
                 }
                 onPlayClicked: medialib.addAndPlay( model.id )
                 onAddToPlaylistClicked : medialib.addToPlaylist( model.id )
@@ -152,8 +133,27 @@ Utils.NavigableFocusScope {
             cellWidth: VLCStyle.cover_normal + VLCStyle.margin_small
             cellHeight: VLCStyle.cover_normal + VLCStyle.fontHeight_normal * 2 + VLCStyle.margin_small
 
+            customDelegate: Utils.GridItem {
+                property variant model
+                property int index
+                image: model.cover || VLCStyle.noArtAlbum
+                title: model.title || qsTr("Unknown title")
+                subtitle: model.main_artist || qsTr("Unknown artist")
+                //selected: element.DelegateModel.inSelected || view.currentItem.currentIndex === index
+                onItemClicked : {
+                    delegateModel.updateSelection( modifier , view.currentItem.currentIndex, index)
+                    view.currentItem.currentIndex = index
+                    view.currentItem.forceActiveFocus()
+                    view._switchExpandItem( index )
+
+                }
+                onPlayClicked: medialib.addAndPlay( model.id )
+                onAddToPlaylistClicked : medialib.addToPlaylist( model.id )
+            }
+
             expandDelegate:  Rectangle {
                 id: expandDelegateId
+                property variant model
                 height: albumDetail.implicitHeight
                 width: root.width
                 color: VLCStyle.colors.bgAlt
@@ -184,8 +184,8 @@ Utils.NavigableFocusScope {
                 }
             }
 
+            model: delegateModel
             modelTop: delegateModel.parts.gridTop
-            modelBottom: delegateModel.parts.gridBottom
             modelCount: delegateModel.items.count
 
             onActionAtIndex: {
