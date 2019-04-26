@@ -31,7 +31,7 @@ NavigableFocusScope {
     property int marginTop: root.cellHeight / 3
 
     //model to be rendered, model has to be passed twice, as they cannot be shared between views
-    property alias model: topView.model
+    property alias model: flickable.model
     property variant modelTop
     property int modelCount: 0
 
@@ -48,7 +48,6 @@ NavigableFocusScope {
     signal selectAll()
     signal actionAtIndex(int index)
 
-    property variant _retractCallback
     property int _newExpandIndex: -1
 
     property double _expandRetractSpeed: 1.
@@ -59,218 +58,238 @@ NavigableFocusScope {
         else
             _newExpandIndex = index
 
-        expandIndex = _newExpandIndex
-    }
-
-    PropertyAnimation {
-        id: animateRetractItem;
-        target: panel;
-        properties: "height"
-        to: 0
-        onStopped: {
-            expandIndex = _newExpandIndex
+        if (expandIndex !== -1) {
+            flickable.retract()
+        } else {
+            flickable.expand()
         }
     }
 
-    PropertyAnimation {
-        id: animateExpandItem;
-        target: panel;
-        properties: "height"
-        from: 0
-    }
+    //Gridview visible above the expanded item
+    Flickable {
+        id: flickable
+        clip: true
 
-        // number of elements per row, for internal computation
-        property int _colCount: Math.floor(width / root.cellWidth)
-        property int _bottomContentY: contentY + height
 
-        property bool _expandActive: root.expandIndex !== -1
-
-        function _rowOfIndex( index ) {
-            return Math.ceil( (index + 1) / flickable._colCount) - 1
+        Keys.enabled: true
+        Keys.onPressed: {
+            console.log("test")
         }
 
-        //from KeyNavigableGridView
-        function _yOfIndex( index ) {
-            return flickable._rowOfIndex(index) * root.cellHeight
+        property variant model
+        property Item expandItem: root.expandDelegate.createObject(contentItem, {"height": 0, "visible": false})
+
+        anchors.fill: parent
+
+        onWidthChanged: { layout() }
+        onHeightChanged: { layout() }
+        onContentYChanged: { layout() }
+
+        function getNbItemsPerRow() {
+            return Math.max(Math.floor(width / root.cellWidth), 1)
         }
 
+        function getItemRowCol(id) {
+            var nbItemsPerRow = getNbItemsPerRow()
+            var rowId = Math.floor(id / nbItemsPerRow)
+            var colId = id % nbItemsPerRow
+            return [colId, rowId]
+        }
 
-            //Gridview visible above the expanded item
-            Flickable {
-                id: topView
-                clip: true
+        function getItemPos(id) {
+            var rowCol = getItemRowCol(id)
+            return [rowCol[0] * root.cellWidth, rowCol[1] * root.cellHeight]
+        }
 
-                property variant model
-                property Item expandItem: root.expandDelegate.createObject(contentItem, {"visible": false})
+        function getExpandItemGridId() {
+            var ret
+            if (root.expandIndex !== -1) {
+                var rowCol = getItemRowCol(root.expandIndex)
+                var rowId = rowCol[1] + 1
+                ret = rowId * getNbItemsPerRow()
+            } else {
+                ret = model.count
+            }
+            return ret
+        }
 
-                anchors.fill: parent
+        property variant idChildrenMap: ({})
 
-                onWidthChanged: { layout() }
-                onHeightChanged: { layout() }
-                onContentYChanged: { layout() }
+        function getFirstAndLastInstanciatedItemIds() {
+            var contentYWithoutExpand = contentY
+            var heightWithoutExpand = height
+            if (root.expandIndex !== -1) {
+                if (contentY >= expandItem.y && contentY < expandItem.y + expandItem.height)
+                    contentYWithoutExpand = expandItem.y
+                if (contentY >= expandItem.y + expandItem.height)
+                    contentYWithoutExpand = contentY - expandItem.height
 
-                function getNbItemsPerRow() {
-                    return Math.max(Math.floor(width / root.cellWidth), 1)
-                }
+                var expandYStart = Math.max(contentY, expandItem.y)
+                var expandYEnd = Math.min(contentY + height, expandItem.y + expandItem.height)
+                var expandDisplayedHeight = Math.max(expandYEnd - expandYStart, 0)
+                heightWithoutExpand -= expandDisplayedHeight
+            }
 
-                function getItemRowCol(id) {
-                    var nbItemsPerRow = getNbItemsPerRow()
-                    var rowId = Math.floor(id / nbItemsPerRow)
-                    var colId = id % nbItemsPerRow
-                    return [colId, rowId]
-                }
+            var rowId = Math.floor(contentYWithoutExpand / root.cellHeight)
+            var firstId = Math.max(rowId * getNbItemsPerRow(), 0)
 
-                function getItemPos(id) {
-                    var rowCol = getItemRowCol(id)
-                    return [rowCol[0] * root.cellWidth, rowCol[1] * root.cellHeight]
-                }
+            rowId = Math.ceil((contentYWithoutExpand + heightWithoutExpand) / root.cellHeight)
+            var lastId = Math.min(rowId * getNbItemsPerRow(), model.count)
 
-                function getTopGridEndId() {
-                    var ret
-                    if (root.expandIndex !== -1) {
-                        var rowCol = getItemRowCol(root.expandIndex)
-                        var rowId = rowCol[1] + 1
-                        ret = rowId * getNbItemsPerRow()
-                    } else {
-                        ret = model.count
-                    }
-                    return ret
-                }
+            return [firstId, lastId]
+        }
 
-                property variant idChildrenMap: ({})
+        function getChild(id, toUse) {
+            var ret
+            if (id in idChildrenMap) {
+                ret = idChildrenMap[id]
+                if (ret === undefined)
+                    throw "wrong child: " + id
+            }
+            else {
+                ret = toUse.pop()
+                if (ret === undefined)
+                    throw "wrong toRecycle child " + id + ", len " + toUse.length
+                idChildrenMap[id] = ret
+            }
+            return ret
+        }
 
-                function getFirstAndLastInstanciatedItemIds() {
-                    var contentYWithoutExpand = contentY
-                    if (root.expandIndex !== -1) {
-                        if (contentY >= expandItem.y && contentY < expandItem.y + expandItem.height)
-                            contentYWithoutExpand = expandItem.y
-                        if (contentY >= expandItem.y + expandItem.height)
-                            contentYWithoutExpand = contentY - expandItem.height
-                    }
+        function layout() {
+            var i
+            var expandItemGridId = getExpandItemGridId()
 
-                    var rowId = Math.floor(contentYWithoutExpand / root.cellHeight)
-                    var firstId = Math.max(rowId * getNbItemsPerRow(), 0)
+            var f_l = getFirstAndLastInstanciatedItemIds()
+            var nbItems = f_l[1] - f_l[0]
+            var firstId = f_l[0]
+            var lastId = f_l[1]
 
-                    rowId = Math.ceil((contentYWithoutExpand + height) / root.cellHeight)
-                    var lastId = Math.min(rowId * getNbItemsPerRow(), model.count - 1)
-                    console.log([firstId, lastId])
-                    return [firstId, lastId]
-                }
+            var topGridEndId = Math.max(Math.min(expandItemGridId, lastId), firstId)
 
-                function getChild(id, toUse) {
-                    var ret
-                    if (id in idChildrenMap) {
-                        ret = idChildrenMap[id]
-                    }
-                    else {
-                        /*if (toUse.length === 0)
-                            throw "Not enough created delegates: " + Object.keys(idChildrenMap).length;*/
-                        ret = toUse.pop()
-                        idChildrenMap[id] = ret
-                    }
-
-                    if (ret === undefined)
-                        throw "could not get child"
-
-                    return ret
-                }
-
-                function layout() {
-                    var i
-                    var topGridEndId = getTopGridEndId()
-
-                    var f_l = getFirstAndLastInstanciatedItemIds()
-                    var nbItems = f_l[1] - f_l[0]
-                    var firstId = f_l[0]
-                    var lastId = f_l[1]
-
-                    // Clean the no longer used ids
-                    var toKeep = {}
-                    var toUse = []
-                    for (var id in idChildrenMap) {
-                        var val = idChildrenMap[id]
-                        if (id >= firstId && id < lastId)
-                            toKeep[id] = val
-                        else {
-                            toUse.push(val)
-                            val.visible = false
-                        }
-                    }
-                    idChildrenMap = toKeep
-
-                    /*console.log("nbItems", nbItems)
-
-                    console.log("toKeep: ", Object.keys(toKeep).length)
-                    console.log("toUse: ", toUse.length)
-
-                    console.log("firstId", firstId)
-                    console.log("lastId", lastId)
-                    console.log("topGridEndId", topGridEndId)*/
-
-                    // Create delegates if we do not have enough
-                    if (nbItems > toUse.length + Object.keys(toKeep).length) {
-                        var toCreate = nbItems - (toUse.length + Object.keys(toKeep).length)
-                        console.log("tocreate", toCreate)
-                        for (i = 0; i < toCreate; ++i) {
-                            val = root.customDelegate.createObject(contentItem);
-                            toUse.push(val)
-                        }
-                    }
-
-                    for (i = firstId; i < Math.min(topGridEndId, lastId); ++i) {
-                        var pos = getItemPos(i)
-                        var item = getChild(i, toUse)
-                        item.model = model.items.get(i).model
-                        item.index = i
-                        item.x = pos[0]
-                        item.y = pos[1]
-                        item.visible = true
-                    }
-
-                    expandItem.y = getItemPos(topGridEndId)[1]
-
-                    for (i = topGridEndId; i < lastId; ++i) {
-                        pos = getItemPos(i)
-                        item = getChild(i, toUse)
-                        item.model = model.items.get(i).model
-                        item.index = i
-                        item.x = pos[0]
-                        item.y = pos[1] + expandItem.height
-                        item.visible = true
-                    }
-
-                    var newContentHeight = getItemPos(model.count - 1)[1] + root.cellHeight
-                    if (root.expandIndex != -1)
-                        newContentHeight += expandItem.height
-
-                    contentHeight = newContentHeight
-                }
-
-                Connections {
-                    target: model.items
-                    onChanged: {
-                        topView.layout()
-                    }
-                }
-
-                Connections {
-                    target: root
-                    onExpandIndexChanged: {
-                        if (root.expandIndex !== -1)
-                            topView.expandItem.visible = true
-                        else
-                            topView.expandItem.visible = false
-                        topView.layout()
-                    }
-                }
-
-                Connections {
-                    target: topView.expandItem
-                    onHeightChanged: {
-                        topView.layout()
-                    }
+            // Clean the no longer used ids
+            var toKeep = {}
+            var toUse = []
+            for (var id in idChildrenMap) {
+                var val = idChildrenMap[id]
+                if (id >= firstId && id < lastId)
+                    toKeep[id] = val
+                else {
+                    toUse.push(val)
+                    val.visible = false
                 }
             }
+            idChildrenMap = toKeep
+
+            /*console.log("-----")
+            console.log("nbItems", nbItems)
+
+            console.log("toKeep: ", Object.keys(toKeep).length)
+            console.log("toUse: ", toUse.length)
+
+            console.log("firstId", firstId)
+            console.log("lastId", lastId)
+            console.log("topGridEndId", topGridEndId)*/
+
+            // Create delegates if we do not have enough
+            if (nbItems > toUse.length + Object.keys(toKeep).length) {
+                var toCreate = nbItems - (toUse.length + Object.keys(toKeep).length)
+                for (i = 0; i < toCreate; ++i) {
+                    val = root.customDelegate.createObject(contentItem);
+                    toUse.push(val)
+                }
+            }
+
+            // Place the delegates before the expandItem
+            for (i = firstId; i < topGridEndId; ++i) {
+                var pos = getItemPos(i)
+                var item = getChild(i, toUse)
+                item.model = model.items.get(i).model
+                item.index = i
+                item.x = pos[0]
+                item.y = pos[1]
+                item.visible = true
+            }
+
+            expandItem.y = getItemPos(expandItemGridId)[1]
+
+            // Place the delegates after the expandItem
+            for (i = topGridEndId; i < lastId; ++i) {
+                pos = getItemPos(i)
+                item = getChild(i, toUse)
+                item.model = model.items.get(i).model
+                item.index = i
+                item.x = pos[0]
+                item.y = pos[1] + expandItem.height
+                item.visible = true
+            }
+
+            // Calculate and set the contentHeight
+            var newContentHeight = getItemPos(model.count - 1)[1] + root.cellHeight
+            if (root.expandIndex != -1)
+                newContentHeight += expandItem.height
+            contentHeight = newContentHeight
+        }
+
+        Connections {
+            target: model.items
+            onChanged: {
+                flickable.layout()
+            }
+        }
+
+        Connections {
+            target: flickable.expandItem
+            onHeightChanged: {
+                flickable.layout()
+            }
+            onImplicitHeightChanged: {
+                /* This is the only event we have after the expandItem height content was resized.
+                   We can trigger here the expand animation with the right final height. */
+                if (root.expandIndex !== -1)
+                    flickable.expandAnimation()
+            }
+        }
+
+        function expand() {
+            expandIndex = _newExpandIndex
+            /* We must also start the expand animation here since the expandItem implicitHeight is not
+               changed if it had the same height at previous opening. */
+            expandAnimation()
+        }
+
+        function expandAnimation() {
+            flickable.expandItem.visible = true
+            // The animation may have already been triggered, we must stop it.
+            animateExpandItem.stop()
+            animateExpandItem.to = flickable.expandItem.implicitHeight
+            animateExpandItem.start()
+        }
+
+        function retract() {
+            animateRetractItem.start()
+        }
+
+        PropertyAnimation {
+            id: animateRetractItem;
+            target: flickable.expandItem;
+            properties: "height"
+            duration: 500
+            to: 0
+            onStopped: {
+                flickable.expandItem.visible = false
+                if (_newExpandIndex !== -1)
+                    flickable.expand()
+            }
+        }
+
+        PropertyAnimation {
+            id: animateExpandItem;
+            target: flickable.expandItem;
+            properties: "height"
+            duration: 500
+            from: 0
+        }
+    }
 
     PropertyAnimation {
         id: animateContentY;
@@ -280,35 +299,29 @@ NavigableFocusScope {
 
     function animateFlickableContentY( newContentY ) {
         animateContentY.stop()
-        if (newContentY === flickable.contentY) {
-            console.log("newContentY === flickable.contentY: ", newContentY)
-            flickable.contentY = newContentY
-        } else {
-            animateContentY.duration = Math.abs(newContentY - flickable.contentY) / 0.5
-            animateContentY.to = newContentY
-            animateContentY.start()
-        }
+        animateContentY.duration = Math.abs(newContentY - flickable.contentY) / 0.5
+        animateContentY.to = newContentY
+        animateContentY.start()
     }
 
     onCurrentIndexChanged: {
         var newContentY = flickable.contentY;
-        if ( flickable._yOfIndex(root.currentIndex) + root.cellHeight > flickable._bottomContentY) {
-            console.log("onCurrentIndexChanged")
+        var currentItemYPos = flickable.getItemPos(currentIndex)[1]
+        if (currentItemYPos + cellHeight > flickable.contentY + flickable.height) {
             //move viewport to see expanded item bottom
             newContentY = Math.min(
-                        flickable._yOfIndex(root.currentIndex) + root.cellHeight - flickable.height,
+                        currentItemYPos + cellHeight - flickable.height,
                         flickable.contentHeight - flickable.height)
-        } else if (flickable._yOfIndex(root.currentIndex) < flickable.contentY) {
+        } else if (currentItemYPos < flickable.contentY) {
             //move viewport to see expanded item at top
-            newContentY = Math.max(
-                        flickable._yOfIndex(root.currentIndex),
-                        0)
+            newContentY = Math.max(currentItemYPos, 0)
         }
 
         animateFlickableContentY(newContentY)
     }
 
     Keys.onPressed: {
+        console.log("test")
         var newIndex = -1
         if (event.key === Qt.Key_Right || event.matches(StandardKey.MoveToNextChar)) {
             if ((root.currentIndex + 1) % flickable._colCount !== 0) {//are we not at the end of line

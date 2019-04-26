@@ -134,12 +134,13 @@ Utils.NavigableFocusScope {
             cellHeight: VLCStyle.cover_normal + VLCStyle.fontHeight_normal * 2 + VLCStyle.margin_small
 
             customDelegate: Utils.GridItem {
-                property variant model
+                property variant model: MLAlbumModel{}
                 property int index
                 image: model.cover || VLCStyle.noArtAlbum
                 title: model.title || qsTr("Unknown title")
                 subtitle: model.main_artist || qsTr("Unknown artist")
                 //selected: element.DelegateModel.inSelected || view.currentItem.currentIndex === index
+                selected: view.currentItem.currentIndex === index
                 onItemClicked : {
                     delegateModel.updateSelection( modifier , view.currentItem.currentIndex, index)
                     view.currentItem.currentIndex = index
@@ -153,8 +154,7 @@ Utils.NavigableFocusScope {
 
             expandDelegate:  Rectangle {
                 id: expandDelegateId
-                property variant model
-                height: albumDetail.implicitHeight
+                implicitHeight: albumDetail.implicitHeight
                 width: root.width
                 color: VLCStyle.colors.bgAlt
                 property int currentId: -1
@@ -165,7 +165,6 @@ Utils.NavigableFocusScope {
                     anchors.fill: parent
                     visible: true
                     focus: true
-                    model: delegateModel.items.get(gridView_id.expandIndex).model
                     onActionCancel:  gridView_id.expandIndex = -1
                     onActionUp:  gridView_id.expandIndex = -1
                     onActionDown: gridView_id.expandIndex = -1
@@ -250,7 +249,6 @@ Utils.NavigableFocusScope {
         }
 
         function _switchExpandItem(index) {
-            console.log("_switchExpandItem")
             view.currentItem.switchExpandItem(index)
 
             /*if (view.currentItem.expandIndex === index)

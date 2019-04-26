@@ -26,9 +26,10 @@ import "qrc:///style/"
 
 Utils.NavigableFocusScope {
     id: root
-    property var model: []
+    property variant model: MLAlbumModel{}
     //color: VLCStyle.colors.bg
     implicitHeight: layout.height
+    clip: true
 
     width: parent.width
 
@@ -37,8 +38,6 @@ Utils.NavigableFocusScope {
         spacing: VLCStyle.margin_xsmall
         width: parent.width
         height: Math.max(expand_infos_id.height, artAndControl.height)
-
-        onHeightChanged: console.log("row height: ", height)
 
         FocusScope {
             id: artAndControl
