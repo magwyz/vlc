@@ -144,7 +144,7 @@ Utils.NavigableFocusScope {
                 onItemClicked : {
                     delegateModel.updateSelection( modifier , view.currentItem.currentIndex, index)
                     view.currentItem.currentIndex = index
-                    view.currentItem.forceActiveFocus()
+                    //view.currentItem.forceActiveFocus()
                     view._switchExpandItem( index )
 
                 }
@@ -160,26 +160,19 @@ Utils.NavigableFocusScope {
                 property int currentId: -1
                 property alias model : albumDetail.model
 
+                onActiveFocusChanged: {
+                    if (activeFocus)
+                        albumDetail.forceActiveFocus()
+                }
+
                 MusicAlbumsGridExpandDelegate {
                     id: albumDetail
                     anchors.fill: parent
-                    visible: true
-                    focus: true
-                    onActionCancel:  gridView_id.expandIndex = -1
-                    onActionUp:  gridView_id.expandIndex = -1
-                    onActionDown: gridView_id.expandIndex = -1
+                    onActionCancel:  gridView_id.retract()
+                    onActionUp:  gridView_id.retract()
+                    onActionDown: gridView_id.retract()
                     onActionLeft: root.actionLeft(index)
                     onActionRight: root.actionRight(index)
-                }
-
-                Connections {
-                    target: gridView_id
-                    onExpandIndexChanged: {
-                        if (gridView_id.expandIndex !== -1)
-                        {
-                            expandDelegateId.model = delegateModel.items.get(gridView_id.expandIndex).model
-                        }
-                    }
                 }
             }
 

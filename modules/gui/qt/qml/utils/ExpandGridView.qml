@@ -38,7 +38,7 @@ NavigableFocusScope {
     property int currentIndex: 0
 
     /// the id of the item to be expanded
-    property int expandIndex: -1
+    property int _expandIndex: -1
     //delegate to display the extended item
     property Component customDelegate: Item{}
     property Component expandDelegate: Item{}
@@ -53,16 +53,21 @@ NavigableFocusScope {
     property double _expandRetractSpeed: 1.
 
     function switchExpandItem(index) {
-        if (index === expandIndex)
+        if (index === _expandIndex)
             _newExpandIndex = -1
         else
             _newExpandIndex = index
 
-        if (expandIndex !== -1) {
+        if (_expandIndex !== -1) {
             flickable.retract()
         } else {
             flickable.expand()
         }
+    }
+
+    function retract() {
+        _newExpandIndex = -1
+        flickable.retract()
     }
 
     //Gridview visible above the expanded item
@@ -70,14 +75,8 @@ NavigableFocusScope {
         id: flickable
         clip: true
 
-
-        Keys.enabled: true
-        Keys.onPressed: {
-            console.log("test")
-        }
-
         property variant model
-        property Item expandItem: root.expandDelegate.createObject(contentItem, {"height": 0, "visible": false})
+        property Item expandItem: root.expandDelegate.createObject(contentItem, {"height": 0})
 
         anchors.fill: parent
 
@@ -103,8 +102,8 @@ NavigableFocusScope {
 
         function getExpandItemGridId() {
             var ret
-            if (root.expandIndex !== -1) {
-                var rowCol = getItemRowCol(root.expandIndex)
+            if (root._expandIndex !== -1) {
+                var rowCol = getItemRowCol(root._expandIndex)
                 var rowId = rowCol[1] + 1
                 ret = rowId * getNbItemsPerRow()
             } else {
@@ -118,7 +117,7 @@ NavigableFocusScope {
         function getFirstAndLastInstanciatedItemIds() {
             var contentYWithoutExpand = contentY
             var heightWithoutExpand = height
-            if (root.expandIndex !== -1) {
+            if (root._expandIndex !== -1) {
                 if (contentY >= expandItem.y && contentY < expandItem.y + expandItem.height)
                     contentYWithoutExpand = expandItem.y
                 if (contentY >= expandItem.y + expandItem.height)
@@ -225,7 +224,7 @@ NavigableFocusScope {
 
             // Calculate and set the contentHeight
             var newContentHeight = getItemPos(model.count - 1)[1] + root.cellHeight
-            if (root.expandIndex != -1)
+            if (root._expandIndex !== -1)
                 newContentHeight += expandItem.height
             contentHeight = newContentHeight
         }
@@ -245,20 +244,21 @@ NavigableFocusScope {
             onImplicitHeightChanged: {
                 /* This is the only event we have after the expandItem height content was resized.
                    We can trigger here the expand animation with the right final height. */
-                if (root.expandIndex !== -1)
+                if (root._expandIndex !== -1)
                     flickable.expandAnimation()
             }
         }
 
         function expand() {
-            expandIndex = _newExpandIndex
+            _expandIndex = _newExpandIndex
+            expandItem.model = model.items.get(_expandIndex).model
             /* We must also start the expand animation here since the expandItem implicitHeight is not
                changed if it had the same height at previous opening. */
             expandAnimation()
         }
 
         function expandAnimation() {
-            flickable.expandItem.visible = true
+            flickable.expandItem.focus = true
             // The animation may have already been triggered, we must stop it.
             animateExpandItem.stop()
             animateExpandItem.to = flickable.expandItem.implicitHeight
@@ -273,10 +273,10 @@ NavigableFocusScope {
             id: animateRetractItem;
             target: flickable.expandItem;
             properties: "height"
-            duration: 500
+            duration: 250
             to: 0
             onStopped: {
-                flickable.expandItem.visible = false
+                flickable.focus = true
                 if (_newExpandIndex !== -1)
                     flickable.expand()
             }
@@ -286,7 +286,7 @@ NavigableFocusScope {
             id: animateExpandItem;
             target: flickable.expandItem;
             properties: "height"
-            duration: 500
+            duration: 250
             from: 0
         }
     }
@@ -321,31 +321,32 @@ NavigableFocusScope {
     }
 
     Keys.onPressed: {
-        console.log("test")
+        var colCount = flickable.getNbItemsPerRow()
+
         var newIndex = -1
         if (event.key === Qt.Key_Right || event.matches(StandardKey.MoveToNextChar)) {
-            if ((root.currentIndex + 1) % flickable._colCount !== 0) {//are we not at the end of line
-                newIndex = Math.min(root.modelCount - 1, root.currentIndex + 1)
+            if ((currentIndex + 1) % colCount !== 0) {//are we not at the end of line
+                newIndex = Math.min(root.modelCount - 1, currentIndex + 1)
             }
         } else if (event.key === Qt.Key_Left || event.matches(StandardKey.MoveToPreviousChar)) {
-            if (root.currentIndex % flickable._colCount !== 0) {//are we not at the begining of line
-                newIndex = Math.max(0, root.currentIndex - 1)
+            if (currentIndex % colCount !== 0) {//are we not at the begining of line
+                newIndex = Math.max(0, currentIndex - 1)
             }
         } else if (event.key === Qt.Key_Down || event.matches(StandardKey.MoveToNextLine) ||event.matches(StandardKey.SelectNextLine) ) {
-            if (Math.floor(root.currentIndex / flickable._colCount) !== Math.floor(root.modelCount / flickable._colCount)) { //we are not on the last line
-                newIndex = Math.min(root.modelCount - 1, root.currentIndex + flickable._colCount)
+            if (Math.floor(currentIndex / colCount) !== Math.floor(root.modelCount / colCount)) { //we are not on the last line
+                newIndex = Math.min(root.modelCount - 1, currentIndex + colCount)
             }
         } else if (event.key === Qt.Key_PageDown || event.matches(StandardKey.MoveToNextPage) ||event.matches(StandardKey.SelectNextPage)) {
-            newIndex = Math.min(root.modelCount - 1, root.currentIndex + flickable._colCount * 5)
+            newIndex = Math.min(root.modelCount - 1, currentIndex + colCount * 5)
         } else if (event.key === Qt.Key_Up || event.matches(StandardKey.MoveToPreviousLine) ||event.matches(StandardKey.SelectPreviousLine)) {
-             if (Math.floor(root.currentIndex / flickable._colCount) !== 0) { //we are not on the first line
-                newIndex = Math.max(0, root.currentIndex - flickable._colCount)
+             if (Math.floor(currentIndex / colCount) !== 0) { //we are not on the first line
+                newIndex = Math.max(0, currentIndex - colCount)
              }
         } else if (event.key === Qt.Key_PageUp || event.matches(StandardKey.MoveToPreviousPage) ||event.matches(StandardKey.SelectPreviousPage)) {
-            newIndex = Math.max(0, root.currentIndex - flickable._colCount * 5)
+            newIndex = Math.max(0, currentIndex - colCount * 5)
         }
 
-        if (newIndex != -1 && newIndex != root.currentIndex) {
+        if (newIndex != -1 && newIndex != currentIndex) {
             event.accepted = true
             var oldIndex = currentIndex
             currentIndex = newIndex
@@ -362,7 +363,7 @@ NavigableFocusScope {
             root.selectAll()
         } else if (event.key === Qt.Key_Space || event.matches(StandardKey.InsertParagraphSeparator)) { //enter/return/space
             event.accepted = true
-            root.actionAtIndex(root.currentIndex)
+            root.actionAtIndex(currentIndex)
         }
     }
 }
