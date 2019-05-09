@@ -159,6 +159,8 @@ Utils.NavigableFocusScope {
                 color: VLCStyle.colors.bgAlt
                 property int currentId: -1
                 property alias model : albumDetail.model
+                property alias currentItemY: albumDetail.currentItemY
+                property alias currentItemHeight: albumDetail.currentItemHeight
 
                 onActiveFocusChanged: {
                     if (activeFocus)

@@ -33,6 +33,9 @@ Utils.NavigableFocusScope {
 
     width: parent.width
 
+    property int currentItemY
+    property int currentItemHeight
+
     Row {
         id: layout
         spacing: VLCStyle.margin_xsmall
@@ -187,6 +190,13 @@ Utils.NavigableFocusScope {
                 onParentIdChanged: {
                     currentIndex = 0
                     focus = true
+                }
+
+                onCurrentItemChanged: {
+                    if (currentItem != undefined) {
+                        root.currentItemY = expand_infos_id.y + expand_track_id.y + currentItem.y
+                        root.currentItemHeight = currentItem.height
+                    }
                 }
 
                 sortModel: ListModel {

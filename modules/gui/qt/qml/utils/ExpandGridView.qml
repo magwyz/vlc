@@ -246,6 +246,22 @@ NavigableFocusScope {
                 if (root._expandIndex !== -1)
                     flickable.expandAnimation()
             }
+            onCurrentItemYChanged: {
+                var newContentY = flickable.contentY;
+                var currentItemYPos = flickable.getItemPos(currentIndex)[1] + cellHeight + flickable.expandItem.currentItemY
+                if (currentItemYPos + flickable.expandItem.currentItemHeight > flickable.contentY + flickable.height) {
+                    //move viewport to see current item bottom
+                    newContentY = Math.min(
+                                currentItemYPos + flickable.expandItem.currentItemHeight - flickable.height,
+                                flickable.contentHeight - flickable.height)
+                } else if (currentItemYPos < flickable.contentY) {
+                    //move viewport to see current item top
+                    newContentY = Math.max(currentItemYPos, 0)
+                }
+
+                if (newContentY !== flickable.contentY)
+                    animateFlickableContentY(newContentY)
+            }
         }
 
         function expand() {
@@ -297,6 +313,7 @@ NavigableFocusScope {
             onStopped: {
                 flickable.focus = true
                 _expandIndex = -1
+                root.animateToCurrentIndex()
                 if (_newExpandIndex !== -1)
                     flickable.expand()
             }
@@ -324,7 +341,7 @@ NavigableFocusScope {
         animateContentY.start()
     }
 
-    onCurrentIndexChanged: {
+    function animateToCurrentIndex() {
         var newContentY = flickable.contentY;
         var currentItemYPos = flickable.getItemPos(currentIndex)[1]
         if (currentItemYPos + cellHeight > flickable.contentY + flickable.height) {
@@ -340,6 +357,8 @@ NavigableFocusScope {
         if (newContentY !== flickable.contentY)
             animateFlickableContentY(newContentY)
     }
+
+    onCurrentIndexChanged: animateToCurrentIndex()
 
     Keys.onPressed: {
         var colCount = flickable.getNbItemsPerRow()
