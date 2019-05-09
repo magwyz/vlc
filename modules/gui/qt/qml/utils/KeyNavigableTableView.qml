@@ -40,6 +40,8 @@ NavigableFocusScope {
 
     property alias section: view.section
 
+    property alias currentIndex: view.currentIndex
+
     Utils.SelectableDelegateModel {
         id: delegateModel
 

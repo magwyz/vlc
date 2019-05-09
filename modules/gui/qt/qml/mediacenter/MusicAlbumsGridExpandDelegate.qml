@@ -184,6 +184,11 @@ Utils.NavigableFocusScope {
                 interactive: false
 
                 parentId : root.model.id
+                onParentIdChanged: {
+                    currentIndex = 0
+                    focus = true
+                }
+
                 sortModel: ListModel {
                     ListElement{ criteria: "track_number";  width:0.10; visible: true; text: qsTr("#"); showSection: "" }
                     ListElement{ criteria: "title";         width:0.70; visible: true; text: qsTr("Title"); showSection: "" }
