@@ -58,11 +58,10 @@ NavigableFocusScope {
         else
             _newExpandIndex = index
 
-        if (_expandIndex !== -1) {
+        if (_expandIndex !== -1)
             flickable.retract()
-        } else {
+        else
             flickable.expand()
-        }
     }
 
     function retract() {
@@ -277,6 +276,7 @@ NavigableFocusScope {
             to: 0
             onStopped: {
                 flickable.focus = true
+                _expandIndex = -1
                 if (_newExpandIndex !== -1)
                     flickable.expand()
             }
