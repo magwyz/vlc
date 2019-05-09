@@ -257,11 +257,31 @@ NavigableFocusScope {
         }
 
         function expandAnimation() {
+            var expandItemHeight = flickable.expandItem.implicitHeight;
+
+            // Expand animation
+
             flickable.expandItem.focus = true
             // The animation may have already been triggered, we must stop it.
             animateExpandItem.stop()
-            animateExpandItem.to = flickable.expandItem.implicitHeight
+            animateExpandItem.to = expandItemHeight
             animateExpandItem.start()
+
+            // Sliding animation
+
+            var newContentY = flickable.contentY;
+            var currentItemYPos = flickable.getItemPos(currentIndex)[1]
+            if (currentItemYPos + cellHeight + expandItemHeight > flickable.contentY + flickable.height) {
+                if (cellHeight + expandItemHeight > flickable.height)
+                    newContentY = currentItemYPos
+                else
+                    newContentY = Math.min(
+                                currentItemYPos + cellHeight + expandItemHeight - flickable.height,
+                                flickable.contentHeight + expandItemHeight - flickable.height)
+            }
+
+            if (newContentY !== flickable.contentY)
+                animateFlickableContentY(newContentY)
         }
 
         function retract() {
@@ -299,7 +319,7 @@ NavigableFocusScope {
 
     function animateFlickableContentY( newContentY ) {
         animateContentY.stop()
-        animateContentY.duration = Math.abs(newContentY - flickable.contentY) / 0.5
+        animateContentY.duration = 250
         animateContentY.to = newContentY
         animateContentY.start()
     }
@@ -308,16 +328,17 @@ NavigableFocusScope {
         var newContentY = flickable.contentY;
         var currentItemYPos = flickable.getItemPos(currentIndex)[1]
         if (currentItemYPos + cellHeight > flickable.contentY + flickable.height) {
-            //move viewport to see expanded item bottom
+            //move viewport to see current item bottom
             newContentY = Math.min(
                         currentItemYPos + cellHeight - flickable.height,
                         flickable.contentHeight - flickable.height)
         } else if (currentItemYPos < flickable.contentY) {
-            //move viewport to see expanded item at top
+            //move viewport to see current item top
             newContentY = Math.max(currentItemYPos, 0)
         }
 
-        animateFlickableContentY(newContentY)
+        if (newContentY !== flickable.contentY)
+            animateFlickableContentY(newContentY)
     }
 
     Keys.onPressed: {
