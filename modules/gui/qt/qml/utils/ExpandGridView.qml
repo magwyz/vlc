@@ -231,6 +231,10 @@ NavigableFocusScope {
         Connections {
             target: model.items
             onChanged: {
+                // Hide the expandItem with no animation
+                _expandIndex = -1
+                flickable.expandItem.height = 0
+                // Regenerate the gridview layout
                 flickable.layout()
             }
         }
