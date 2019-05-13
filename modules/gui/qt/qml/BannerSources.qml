@@ -101,14 +101,15 @@ Utils.NavigableFocusScope {
                             }
                         }
 
-                        checkable: true
                         padding: 0
+
                         onClicked: {
-                            checked =  !control.checked;
+                            console.log("onClicked")
                             root.selectedIndex = model.index
                         }
 
                         font.pixelSize: VLCStyle.fontSize_normal
+                        font.bold: root.selectedIndex === model.index || control.hovered
 
                         background: Rectangle {
                             height: parent.height
@@ -117,43 +118,49 @@ Utils.NavigableFocusScope {
                             color: VLCStyle.colors.banner
                         }
 
-                        contentItem: Row {
-                            Image {
-                                id: icon
-                                anchors {
-                                    verticalCenter: parent.verticalCenter
-                                    rightMargin: VLCStyle.margin_xsmall
-                                    leftMargin: VLCStyle.margin_small
+                        contentItem: Item {
+                            implicitWidth: tabRow.width
+                            implicitHeight: tabRow.height
+                            Row {
+                                id: tabRow
+                                leftPadding: 5
+                                rightPadding: 5
+
+                                Image {
+                                    id: icon
+                                    anchors {
+                                        verticalCenter: parent.verticalCenter
+                                        rightMargin: VLCStyle.margin_xsmall
+                                        leftMargin: VLCStyle.margin_small
+                                    }
+                                    height: VLCStyle.icon_normal
+                                    width: VLCStyle.icon_normal
+                                    source: model.pic
+                                    fillMode: Image.PreserveAspectFit
                                 }
-                                height: VLCStyle.icon_normal
-                                width: VLCStyle.icon_normal
-                                source: model.pic
-                                fillMode: Image.PreserveAspectFit
+
+                                Label {
+                                    text: control.text
+                                    font: control.font
+                                    color: control.hovered ? VLCStyle.colors.textActiveSource : VLCStyle.colors.text
+                                    verticalAlignment: Text.AlignVCenter
+                                    horizontalAlignment: Text.AlignHCenter
+
+                                    anchors {
+                                        verticalCenter: parent.verticalCenter
+                                        rightMargin: VLCStyle.margin_xsmall
+                                        leftMargin: VLCStyle.margin_small
+                                    }
+                                }
                             }
 
-                            Label {
-                                text: control.text
-                                font: control.font
-                                color: control.hovered ?  VLCStyle.colors.textActiveSource : VLCStyle.colors.text
-                                verticalAlignment: Text.AlignVCenter
-                                horizontalAlignment: Text.AlignHCenter
-
-                                anchors {
-                                    verticalCenter: parent.verticalCenter
-                                    rightMargin: VLCStyle.margin_xsmall
-                                    leftMargin: VLCStyle.margin_small
-                                }
-
-                                Rectangle {
-                                    anchors {
-                                        left: parent.left
-                                        right: parent.right
-                                        bottom: parent.bottom
-                                    }
-                                    height: 2
-                                    visible: control.activeFocus || control.checked
-                                    color: control.activeFocus ? VLCStyle.colors.accent  : VLCStyle.colors.bgHover
-                                }
+                            Rectangle {
+                                width: tabRow.width
+                                height: tabRow.height
+                                border.width: 2
+                                visible: control.activeFocus || control.hovered
+                                color: "transparent"
+                                border.color: VLCStyle.colors.accent
                             }
                         }
                     }
