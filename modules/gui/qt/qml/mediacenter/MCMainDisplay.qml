@@ -51,17 +51,17 @@ Utils.NavigableFocusScope {
     readonly property var pageModel: [
         {
             displayText: qsTr("Video"),
-            pic: "qrc:///sidebar/movie.svg",
+            pic: "qrc:///topbar/movie.svg",
             name: "video",
             component: videoComp
         }, {
             displayText: qsTr("Music"),
-            pic: "qrc:///sidebar/music.svg",
+            pic: "qrc:///topbar/music.svg",
             name: "music",
             component: musicComp
         }, {
             displayText: qsTr("Network"),
-            pic: "qrc:///sidebar/screen.svg",
+            pic: "qrc:///topbar/network.svg",
             name: "network",
             component: networkComp
         }
