@@ -48,119 +48,127 @@ Utils.NavigableFocusScope {
         color: VLCStyle.colors.banner
         property alias model: buttonView.model
 
-        RowLayout {
+        Item {
             anchors.fill: parent
 
-            Utils.IconToolButton {
-                id: history_back
-                size: VLCStyle.icon_normal
-                text: VLCIcons.dvd_prev
+            RowLayout {
+                anchors.fill: parent
 
-                focus: true
-                KeyNavigation.right: buttonView
-                onClicked: history.pop(History.Go)
+                Utils.IconToolButton {
+                    id: history_back
+                    size: VLCStyle.icon_normal
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                    text: VLCIcons.dvd_prev
+                    focus: true
+                    KeyNavigation.right: buttonView
+                    onClicked: history.pop(History.Go)
+                }
             }
 
             /* Button for the sources */
-            TabBar {
-                id: buttonView
+            RowLayout {
+                anchors.fill: parent
 
-                focusPolicy: Qt.StrongFocus
+                TabBar {
+                    id: buttonView
 
-                Layout.preferredHeight: VLCStyle.icon_normal
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    focusPolicy: Qt.StrongFocus
 
-                KeyNavigation.left: history_back
+                    Layout.preferredHeight: VLCStyle.icon_normal
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
 
-                Component.onCompleted: {
-                    buttonView.contentItem.focus= true
-                }
+                    KeyNavigation.left: history_back
 
-                background: Rectangle {
-                    color: "transparent"
-                }
+                    Component.onCompleted: {
+                        buttonView.contentItem.focus = true
+                    }
 
-                property alias model: sourcesButtons.model
-                /* Repeater to display each button */
-                Repeater {
-                    id: sourcesButtons
-                    focus: true
+                    background: Rectangle {
+                        color: "transparent"
+                    }
 
-                    TabButton {
-                        id: control
-                        text: model.displayText
+                    property alias model: sourcesButtons.model
+                    /* Repeater to display each button */
+                    Repeater {
+                        id: sourcesButtons
+                        focus: true
 
-                        //initial focus
-                        focusPolicy: Qt.StrongFocus
-                        //focus: index === 1
-                        focus: model.selected
+                        TabButton {
+                            id: control
+                            text: model.displayText
 
-                        Component.onCompleted: {
-                            if (model.selected) {
-                                buttonView.currentIndex = index
-                            }
-                        }
+                            //initial focus
+                            focusPolicy: Qt.StrongFocus
+                            //focus: index === 1
+                            focus: model.selected
 
-                        padding: 0
-
-                        onClicked: {
-                            console.log("onClicked")
-                            root.selectedIndex = model.index
-                        }
-
-                        font.pixelSize: VLCStyle.fontSize_normal
-                        font.bold: root.selectedIndex === model.index || control.hovered
-
-                        background: Rectangle {
-                            height: parent.height
-                            width: parent.contentItem.width
-                            //color: (control.hovered || control.activeFocus) ? VLCStyle.colors.bgHover : VLCStyle.colors.banner
-                            color: VLCStyle.colors.banner
-                        }
-
-                        contentItem: Item {
-                            implicitWidth: tabRow.width
-                            implicitHeight: tabRow.height
-                            Row {
-                                id: tabRow
-                                leftPadding: 5
-                                rightPadding: 5
-
-                                Image {
-                                    id: icon
-                                    anchors {
-                                        verticalCenter: parent.verticalCenter
-                                        rightMargin: VLCStyle.margin_xsmall
-                                        leftMargin: VLCStyle.margin_small
-                                    }
-                                    height: VLCStyle.icon_normal
-                                    width: VLCStyle.icon_normal
-                                    source: model.pic
-                                    fillMode: Image.PreserveAspectFit
-                                }
-
-                                Label {
-                                    text: control.text
-                                    font: control.font
-                                    color: control.hovered ? VLCStyle.colors.textActiveSource : VLCStyle.colors.text
-                                    verticalAlignment: Text.AlignVCenter
-                                    horizontalAlignment: Text.AlignHCenter
-
-                                    anchors {
-                                        verticalCenter: parent.verticalCenter
-                                        rightMargin: VLCStyle.margin_xsmall
-                                        leftMargin: VLCStyle.margin_small
-                                    }
+                            Component.onCompleted: {
+                                if (model.selected) {
+                                    buttonView.currentIndex = index
                                 }
                             }
 
-                            Rectangle {
-                                width: tabRow.width
-                                height: tabRow.height
-                                border.width: 2
-                                visible: control.activeFocus || control.hovered
-                                color: "transparent"
-                                border.color: VLCStyle.colors.accent
+                            padding: 0
+
+                            onClicked: {
+                                console.log("onClicked")
+                                root.selectedIndex = model.index
+                            }
+
+                            font.pixelSize: VLCStyle.fontSize_normal
+                            font.bold: root.selectedIndex === model.index || control.hovered
+
+                            background: Rectangle {
+                                height: parent.height
+                                width: parent.contentItem.width
+                                //color: (control.hovered || control.activeFocus) ? VLCStyle.colors.bgHover : VLCStyle.colors.banner
+                                color: VLCStyle.colors.banner
+                            }
+
+                            contentItem: Item {
+                                implicitWidth: tabRow.width
+                                implicitHeight: tabRow.height
+                                Row {
+                                    id: tabRow
+                                    leftPadding: 5
+                                    rightPadding: 5
+
+                                    Image {
+                                        id: icon
+                                        anchors {
+                                            verticalCenter: parent.verticalCenter
+                                            rightMargin: VLCStyle.margin_xsmall
+                                            leftMargin: VLCStyle.margin_small
+                                        }
+                                        height: VLCStyle.icon_normal
+                                        width: VLCStyle.icon_normal
+                                        source: model.pic
+                                        fillMode: Image.PreserveAspectFit
+                                    }
+
+                                    Label {
+                                        text: control.text
+                                        font: control.font
+                                        color: control.hovered ? VLCStyle.colors.textActiveSource : VLCStyle.colors.text
+                                        verticalAlignment: Text.AlignVCenter
+                                        horizontalAlignment: Text.AlignHCenter
+
+                                        anchors {
+                                            verticalCenter: parent.verticalCenter
+                                            rightMargin: VLCStyle.margin_xsmall
+                                            leftMargin: VLCStyle.margin_small
+                                        }
+                                    }
+                                }
+
+                                Rectangle {
+                                    width: tabRow.width
+                                    height: tabRow.height
+                                    border.width: 2
+                                    visible: control.activeFocus || control.hovered
+                                    color: "transparent"
+                                    border.color: VLCStyle.colors.accent
+                                }
                             }
                         }
                     }
@@ -168,40 +176,44 @@ Utils.NavigableFocusScope {
             }
 
 
-            ToolBar {
-                Layout.preferredHeight: VLCStyle.icon_normal
-                //Layout.preferredWidth: VLCStyle.icon_normal * 3
-                Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
-                background: Item{
-                    width: parent.implicitWidth
-                    height: parent.implicitHeight
-                }
+            RowLayout {
+                anchors.fill: parent
 
-                Row {
-                    Utils.IconToolButton {
-                        id: playlist_btn
-
-                        size: VLCStyle.icon_normal
-                        text: VLCIcons.playlist
-
-                        KeyNavigation.left: buttonView
-
-                        onClicked: root.toogleMenu()
+                ToolBar {
+                    Layout.preferredHeight: VLCStyle.icon_normal
+                    //Layout.preferredWidth: VLCStyle.icon_normal * 3
+                    Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+                    background: Item{
+                        width: parent.implicitWidth
+                        height: parent.implicitHeight
                     }
 
-                    Utils.IconToolButton {
-                        id: menu_selector
+                    Row {
+                        Utils.IconToolButton {
+                            id: playlist_btn
 
-                        size: VLCStyle.icon_normal
-                        text: VLCIcons.menu
+                            size: VLCStyle.icon_normal
+                            text: VLCIcons.playlist
 
-                        KeyNavigation.left: playlist_btn
+                            KeyNavigation.left: buttonView
 
-                        onClicked: mainMenu.openBelow(this)
+                            onClicked: root.toogleMenu()
+                        }
 
-                        Menus.MainDropdownMenu {
-                            id: mainMenu
-                            onClosed: menu_selector.forceActiveFocus()
+                        Utils.IconToolButton {
+                            id: menu_selector
+
+                            size: VLCStyle.icon_normal
+                            text: VLCIcons.menu
+
+                            KeyNavigation.left: playlist_btn
+
+                            onClicked: mainMenu.openBelow(this)
+
+                            Menus.MainDropdownMenu {
+                                id: mainMenu
+                                onClosed: menu_selector.forceActiveFocus()
+                            }
                         }
                     }
                 }
