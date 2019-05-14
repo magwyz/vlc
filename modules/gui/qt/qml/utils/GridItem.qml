@@ -78,12 +78,10 @@ Item {
                 height: VLCStyle.cover_normal
                 property bool highlighted: selected || mouseArea.containsMouse
 
-                RectangularGlow {
+                Rectangle {
                     visible: picture.highlighted
-                    anchors.fill: cover_bg
-                    cornerRadius: 25
-                    spread: 0.5
-                    glowRadius: VLCStyle.margin_xsmall
+                    anchors.fill: parent
+                    anchors.margins: (VLCStyle.cover_normal - VLCStyle.cover_small) / 2 - VLCStyle.selectedBorder
                     color: VLCStyle.colors.getBgColor( selected, mouseArea.containsMouse, root.activeFocus )
                 }
 

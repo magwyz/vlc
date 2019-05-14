@@ -94,6 +94,7 @@ Item {
     property int widthSearchInput: 200 * scale;
     property int widthSortBox: 150 * scale;
 
+    property int selectedBorder: 2
 
     //timings
     property int delayToolTipAppear: 500;
