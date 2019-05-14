@@ -39,6 +39,8 @@ NavigableFocusScope {
 
     /// the id of the item to be expanded
     property int _expandIndex: -1
+    property int _newExpandIndex: -1
+
     //delegate to display the extended item
     property Component customDelegate: Item{}
     property Component expandDelegate: Item{}
@@ -47,8 +49,6 @@ NavigableFocusScope {
     signal selectionUpdated( int keyModifiers, int oldIndex,int newIndex )
     signal selectAll()
     signal actionAtIndex(int index)
-
-    property int _newExpandIndex: -1
 
     property double _expandRetractSpeed: 1.
 
@@ -226,6 +226,7 @@ NavigableFocusScope {
             if (root._expandIndex !== -1)
                 newContentHeight += expandItem.height
             contentHeight = newContentHeight
+            setCurrentItemFocus()
         }
 
         Connections {
@@ -315,8 +316,8 @@ NavigableFocusScope {
             duration: 250
             to: 0
             onStopped: {
-                flickable.focus = true
                 _expandIndex = -1
+                flickable.setCurrentItemFocus()
                 root.animateToCurrentIndex()
                 if (_newExpandIndex !== -1)
                     flickable.expand()
@@ -329,6 +330,14 @@ NavigableFocusScope {
             properties: "height"
             duration: 250
             from: 0
+        }
+
+        function setCurrentItemFocus() {
+            var child
+            if (currentIndex in idChildrenMap)
+                child = idChildrenMap[currentIndex]
+            if (child !== undefined && _expandIndex === -1)
+                child.focus = true
         }
     }
 
@@ -362,7 +371,10 @@ NavigableFocusScope {
             animateFlickableContentY(newContentY)
     }
 
-    onCurrentIndexChanged: animateToCurrentIndex()
+    onCurrentIndexChanged: {
+        flickable.setCurrentItemFocus()
+        animateToCurrentIndex()
+    }
 
     Keys.onPressed: {
         var colCount = flickable.getNbItemsPerRow()
