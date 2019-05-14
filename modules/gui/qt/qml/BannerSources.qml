@@ -111,7 +111,6 @@ Utils.NavigableFocusScope {
                             padding: 0
 
                             onClicked: {
-                                console.log("onClicked")
                                 root.selectedIndex = model.index
                             }
 
