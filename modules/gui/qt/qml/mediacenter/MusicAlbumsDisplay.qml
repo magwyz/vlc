@@ -52,23 +52,6 @@ Utils.NavigableFocusScope {
         delegate: Package {
             id: element
 
-            Utils.GridItem {
-                Package.name: "gridTop"
-                image: model.cover || VLCStyle.noArtAlbum
-                title: model.title || qsTr("Unknown title")
-                subtitle: model.main_artist || qsTr("Unknown artist")
-                selected: element.DelegateModel.inSelected || view.currentItem.currentIndex === index
-                onItemClicked : {
-                    delegateModel.updateSelection( modifier , view.currentItem.currentIndex, index)
-                    view.currentItem.currentIndex = index
-                    view.currentItem.forceActiveFocus()
-                    view._switchExpandItem( index )
-
-                }
-                onPlayClicked: medialib.addAndPlay( model.id )
-                onAddToPlaylistClicked : medialib.addToPlaylist( model.id )
-            }
-
             Utils.ListItem {
                 Package.name: "list"
                 width: root.width
