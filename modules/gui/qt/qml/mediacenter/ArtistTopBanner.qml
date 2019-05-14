@@ -33,10 +33,11 @@ Rectangle {
     property int contentY: 0
     height: VLCStyle.heightBar_xlarge
 
-    Image {
+
+    Rectangle {
         id: artistImage
-        source: artist.cover || VLCStyle.noArtArtist
-        fillMode: Image.PreserveAspectCrop
+        color: VLCStyle.colors.banner
+
         height: VLCStyle.cover_small
         width: VLCStyle.cover_small
 
@@ -45,6 +46,12 @@ Rectangle {
             left: parent.left
             leftMargin: VLCStyle.margin_small
 
+        }
+
+        Image {
+            source: artist.cover || VLCStyle.noArtArtist
+            fillMode: Image.PreserveAspectCrop
+            anchors.fill: parent
         }
 
         layer.enabled: true
