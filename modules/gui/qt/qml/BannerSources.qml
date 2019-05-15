@@ -77,6 +77,8 @@ Utils.NavigableFocusScope {
                     Layout.preferredHeight: VLCStyle.icon_normal
                     Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
 
+                    spacing: VLCStyle.margin_small
+
                     KeyNavigation.left: history_back
 
                     Component.onCompleted: {
@@ -109,13 +111,13 @@ Utils.NavigableFocusScope {
                             }
 
                             padding: 0
+                            width: contentItem.implicitWidth
 
                             onClicked: {
                                 root.selectedIndex = model.index
                             }
 
                             font.pixelSize: VLCStyle.fontSize_normal
-                            font.bold: root.selectedIndex === model.index || control.hovered
 
                             background: Rectangle {
                                 height: parent.height
@@ -129,18 +131,16 @@ Utils.NavigableFocusScope {
                                 implicitHeight: tabRow.height
                                 Row {
                                     id: tabRow
-                                    leftPadding: 5
-                                    rightPadding: 5
+                                    padding: VLCStyle.margin_xxsmall
+                                    spacing: VLCStyle.margin_xxsmall
 
                                     Image {
                                         id: icon
                                         anchors {
                                             verticalCenter: parent.verticalCenter
-                                            rightMargin: VLCStyle.margin_xsmall
-                                            leftMargin: VLCStyle.margin_small
                                         }
-                                        height: VLCStyle.icon_normal
-                                        width: VLCStyle.icon_normal
+                                        height: VLCStyle.icon_topbar
+                                        width: VLCStyle.icon_topbar
                                         source: model.pic
                                         fillMode: Image.PreserveAspectFit
                                     }
@@ -148,23 +148,23 @@ Utils.NavigableFocusScope {
                                     Label {
                                         text: control.text
                                         font: control.font
-                                        color: control.hovered ? VLCStyle.colors.textActiveSource : VLCStyle.colors.text
-                                        verticalAlignment: Text.AlignVCenter
-                                        horizontalAlignment: Text.AlignHCenter
+                                        color: VLCStyle.colors.text
+                                        padding: VLCStyle.margin_xxsmall
 
                                         anchors {
-                                            verticalCenter: parent.verticalCenter
-                                            rightMargin: VLCStyle.margin_xsmall
-                                            leftMargin: VLCStyle.margin_small
+                                            bottom: parent.bottom
                                         }
                                     }
                                 }
 
                                 Rectangle {
-                                    width: tabRow.width
-                                    height: tabRow.height
-                                    border.width: 2
-                                    visible: control.activeFocus || control.hovered
+                                    anchors {
+                                        left: tabRow.left
+                                        right: tabRow.right
+                                        bottom: tabRow.bottom
+                                    }
+                                    height: 2
+                                    visible: root.selectedIndex === model.index || control.activeFocus || control.hovered
                                     color: "transparent"
                                     border.color: VLCStyle.colors.accent
                                 }
