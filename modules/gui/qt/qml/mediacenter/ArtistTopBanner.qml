@@ -71,11 +71,12 @@ Rectangle {
         anchors {
             verticalCenter: parent.verticalCenter
             left: artistImage.right
+            right: parent.right
             leftMargin: VLCStyle.margin_small
+            rightMargin: VLCStyle.margin_small
         }
 
-        font.pixelSize: VLCStyle.fontSize_xxxlarge
-        font.bold: true
+        font.pixelSize: VLCStyle.fontSize_xxlarge
         wrapMode: Text.WordWrap
         maximumLineCount: 2
         elide: Text.ElideRight
