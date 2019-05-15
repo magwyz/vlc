@@ -148,5 +148,7 @@ Item {
     property string valid : "\ue073"
     property string search_clear : "\ue074"
     property string menu : "\ue075"
+    property string topbar_previous: "\ue076"
+    property string topbar_next: "\ue077"
 
 }
