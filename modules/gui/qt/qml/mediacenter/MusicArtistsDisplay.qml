@@ -32,13 +32,18 @@ Utils.NavigableFocusScope {
         ListElement { text: qsTr("Alphabetic");  criteria: "title" }
     }
 
-    property var artistId: null
+    property var artistId
 
     Utils.SelectableDelegateModel {
         id: delegateModel
         model: MLArtistModel {
             ml: medialib
         }
+
+        Component.onCompleted: {
+            artistId = items.get(0).model.id
+        }
+
         delegate: Utils.ListItem {
             height: VLCStyle.icon_normal
             width: parent.width
