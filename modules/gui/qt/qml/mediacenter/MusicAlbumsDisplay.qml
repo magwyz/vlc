@@ -123,7 +123,7 @@ Utils.NavigableFocusScope {
                 title: model.title || qsTr("Unknown title")
                 subtitle: model.main_artist || qsTr("Unknown artist")
                 //selected: element.DelegateModel.inSelected || view.currentItem.currentIndex === index
-                selected: view.currentItem.currentIndex === index
+                selected: delegateModel.items.get(index).inSelected
                 onItemClicked : {
                     delegateModel.updateSelection( modifier , view.currentItem.currentIndex, index)
                     view.currentItem.currentIndex = index

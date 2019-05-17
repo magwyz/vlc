@@ -42,7 +42,7 @@ Utils.NavigableFocusScope {
                 focus: true
                 image: model.thumbnail || VLCStyle.noArtCover
                 title: model.title || qsTr("Unknown title")
-                selected: element.DelegateModel.inSelected || view.currentItem.currentIndex === index
+                selected: element.DelegateModel.inSelected
                 shiftX: view.currentItem.shiftX(model.index)
 
                 onItemClicked : {

@@ -76,13 +76,13 @@ Item {
 
                 width: VLCStyle.cover_normal
                 height: VLCStyle.cover_normal
-                property bool highlighted: selected || mouseArea.containsMouse
+                property bool highlighted: root.activeFocus
 
                 Rectangle {
                     visible: picture.highlighted
                     anchors.fill: parent
                     anchors.margins: (VLCStyle.cover_normal - VLCStyle.cover_small) / 2 - VLCStyle.selectedBorder
-                    color: VLCStyle.colors.getBgColor( selected, mouseArea.containsMouse, root.activeFocus )
+                    color: VLCStyle.colors.accent
                 }
 
                 /*
