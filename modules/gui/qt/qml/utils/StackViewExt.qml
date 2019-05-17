@@ -52,7 +52,6 @@ StackView {
      */
     function loadView(viewModel, view, viewProperties)
     {
-        console.log("loadView: ", view)
         var found = false
         for (var tab = 0; tab < viewModel.length; tab++ )
         {
