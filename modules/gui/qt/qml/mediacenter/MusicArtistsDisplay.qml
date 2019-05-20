@@ -80,6 +80,7 @@ Utils.NavigableFocusScope {
 
         function actionAtIndex(index) {
             console.log("actionAtIndex", index)
+            artistBanner.artist = delegateModel.items.get(index).model
             if (delegateModel.selectedGroup.count > 1) {
                 var list = []
                 for (var i = 0; i < delegateModel.selectedGroup.count; i++)
@@ -144,7 +145,7 @@ Utils.NavigableFocusScope {
                     focus: false
                     //contentY: albumsView.contentY
                     contentY: 0
-                    artist: delegateModel.items.get(artistList.currentIndex).model
+                    artist: undefined
                 }
                 MusicAlbumsDisplay {
                     id: albumSubView
