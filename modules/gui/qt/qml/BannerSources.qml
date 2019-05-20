@@ -291,7 +291,8 @@ Utils.NavigableFocusScope {
                     }
 
                     onTextChanged: {
-                        contentModel.searchPattern = text;
+                        if (contentModel !== undefined)
+                            contentModel.searchPattern = text;
                     }
 
                     KeyNavigation.right: combo
@@ -309,7 +310,8 @@ Utils.NavigableFocusScope {
                     textRole: "text"
                     onCurrentIndexChanged: {
                         var sorting = model.get(currentIndex);
-                        contentModel.sortCriteria = sorting.criteria
+                        if (contentModel !== undefined)
+                            contentModel.sortCriteria = sorting.criteria
                     }
 
                     KeyNavigation.right: playlist_btn
