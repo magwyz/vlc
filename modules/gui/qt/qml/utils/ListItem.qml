@@ -101,12 +101,16 @@ NavigableFocusScope {
                 focus: true
 
                 Column {
-                    anchors.fill: parent
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                        verticalCenter: parent.verticalCenter
+                    }
 
                     Text{
                         id: line1_text
-                        font.bold: true
                         width: parent.width
+
                         elide: Text.ElideRight
                         color: VLCStyle.colors.text
                         font.pixelSize: VLCStyle.fontSize_normal
@@ -118,7 +122,8 @@ NavigableFocusScope {
                         text: ""
                         elide: Text.ElideRight
                         color: VLCStyle.colors.text
-                        font.pixelSize: VLCStyle.fontSize_xsmall
+                        font.pixelSize: VLCStyle.fontSize_small
+                        visible: text !== ""
                         enabled: text !== ""
                     }
                 }

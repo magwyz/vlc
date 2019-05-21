@@ -50,10 +50,17 @@ Utils.NavigableFocusScope {
 
             color: VLCStyle.colors.getBgColor(delegateModel.inSelected, this.hovered, this.activeFocus)
 
-            cover: Image {
-                id: cover_obj
-                fillMode: Image.PreserveAspectFit
-                source: model.cover || VLCStyle.noArtArtist
+            cover: Rectangle {
+                color: VLCStyle.colors.banner
+                width: cover_obj.width
+
+                Image {
+                    id: cover_obj
+                    anchors.fill: parent
+
+                    fillMode: Image.PreserveAspectFit
+                    source: model.cover || VLCStyle.noArtArtistSmall
+                }
             }
             line1: model.name || qsTr("Unknown artist")
 
@@ -114,7 +121,7 @@ Utils.NavigableFocusScope {
             height: parent.height
 
             id: artistList
-            spacing: 2
+            spacing: 4
             model: delegateModel
             modelCount: delegateModel.items.count
 
