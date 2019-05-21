@@ -309,9 +309,10 @@ Utils.NavigableFocusScope {
                     Layout.preferredHeight: VLCStyle.heightInput
                     textRole: "text"
                     onCurrentIndexChanged: {
-                        var sorting = model.get(currentIndex);
-                        if (contentModel !== undefined)
+                        if (model !== undefined && contentModel !== undefined) {
+                            var sorting = model.get(currentIndex);
                             contentModel.sortCriteria = sorting.criteria
+                        }
                     }
 
                     KeyNavigation.right: playlist_btn
