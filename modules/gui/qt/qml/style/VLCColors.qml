@@ -75,6 +75,9 @@ Item {
 
     property color alert: "red";
 
+    property color lightText: "#747474";
+
+
     property var colorSchemes: ["system", "day", "night"]
 
     state: "system"
@@ -108,6 +111,8 @@ Item {
 
                 accent: "#ff950d";
                 alert: "#ff0000";
+
+                lightText: "#747474";
             }
         },
         State {
@@ -131,6 +136,7 @@ Item {
                 bannerHover: "#3daee9"
                 accent: "#ff950d"
                 alert: "#ff0000"
+                lightText: "#8b8b8b";
             }
         },
         State {
@@ -157,6 +163,8 @@ Item {
                 textActiveSource: accent
                 banner: activePalette.window
                 bannerHover: activePalette.highlight
+
+                lightText: activePalette.lightText
             }
         }
     ]
