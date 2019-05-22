@@ -119,6 +119,7 @@ Utils.NavigableFocusScope {
             customDelegate: Utils.GridItem {
                 property variant model: MLAlbumModel{}
                 property int index
+                shiftX: view.currentItem.shiftX(model.index)
                 image: model.cover || VLCStyle.noArtAlbum
                 title: model.title || qsTr("Unknown title")
                 subtitle: model.main_artist || qsTr("Unknown artist")
