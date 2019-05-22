@@ -29,11 +29,6 @@ import "qrc:///style/"
 
 Item {
     id: root
-    width: VLCStyle.cover_normal
-    height: VLCStyle.cover_normal
-            + VLCStyle.fontHeight_normal
-            + VLCStyle.fontHeight_small
-            + VLCStyle.margin_xsmall
 
     property url image
     property string title: ""
@@ -51,48 +46,25 @@ Item {
 
     Item {
         x: shiftX
-        width: parent.width
-        height: parent.height
 
         MouseArea {
-
             id: mouseArea
-            anchors.fill: parent
             hoverEnabled: true
             onClicked:  {
                 root.itemClicked(mouse.buttons, mouse.modifiers)
             }
             onDoubleClicked: root.itemDoubleClicked(mouse.buttons, mouse.modifiers);
+            width: childrenRect.width
+            height: childrenRect.height
 
-            Item {
-                anchors.fill: parent
+            Column {
                 Item {
                     id: picture
 
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    anchors.top: parent.top
-
                     width: VLCStyle.cover_normal
-                    height: VLCStyle.cover_normal
+                    height: VLCStyle.cover_normal - VLCStyle.margin_small
+                    anchors.horizontalCenter: parent.horizontalCenter
                     property bool highlighted: root.activeFocus
-
-                    Rectangle {
-                        visible: picture.highlighted
-                        anchors.fill: parent
-                        anchors.margins: (VLCStyle.cover_normal - VLCStyle.cover_small) / 2 - VLCStyle.selectedBorder
-                        color: VLCStyle.colors.accent
-                    }
-
-                    /*
-                    Item {
-                        id: coverPlaceHolder
-                        x: cover.x + (cover.width - cover.paintedWidth) / 2
-                        y: cover.y +(cover.height - cover.paintedHeight) / 2
-                        width: cover.paintedWidth
-                        height: cover.paintedHeight
-                    }
-                    */
 
                     Rectangle {
                         id: cover_bg
@@ -203,60 +175,38 @@ Item {
                                 }
                             ]
                         }
-                    }
 
-                    states: [
-                        State {
-                            name: "big"
-                            when: picture.highlighted
-                            PropertyChanges {
-                                target: cover
-                                width:  VLCStyle.cover_normal - 2 * VLCStyle.margin_xsmall
-                                height: VLCStyle.cover_normal - 2 * VLCStyle.margin_xsmall
-                            }
-                        },
-                        State {
-                            name: "small"
-                            when: !picture.highlighted
-                            PropertyChanges {
-                                target: cover
-                                width:  VLCStyle.cover_normal - 2 * VLCStyle.margin_small
-                                height: VLCStyle.cover_normal - 2 * VLCStyle.margin_small
-                            }
+                        Rectangle {
+                            visible: picture.highlighted
+                            anchors.fill: parent
+                            color: "transparent"
+                            border.width: VLCStyle.selectedBorder
+                            border.color: VLCStyle.colors.accent
                         }
-                    ]
+                    }
                 }
                 Text {
                     id: textTitle
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                        top: picture.bottom
-                        rightMargin: VLCStyle.margin_small
-                        leftMargin: VLCStyle.margin_small
-                    }
+                    width: cover_bg.width
+                    anchors.horizontalCenter: parent.horizontalCenter
 
                     text: root.title
 
                     elide: Text.ElideRight
                     font.pixelSize: VLCStyle.fontSize_normal
-                    font.bold: true
                     color: VLCStyle.colors.text
+                    horizontalAlignment: Qt.AlignHCenter
                 }
                 Text {
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                        top: textTitle.bottom
-                        rightMargin: VLCStyle.margin_small
-                        leftMargin: VLCStyle.margin_small
-                    }
+                    width: cover_bg.width
+                    anchors.horizontalCenter: parent.horizontalCenter
 
                     text : root.subtitle
 
                     elide: Text.ElideRight
                     font.pixelSize: VLCStyle.fontSize_small
-                    color: VLCStyle.colors.text
+                    color: VLCStyle.colors.lightText
+                    horizontalAlignment: Qt.AlignHCenter
                 }
             }
         }

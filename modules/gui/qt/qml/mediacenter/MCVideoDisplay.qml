@@ -113,7 +113,7 @@ Utils.NavigableFocusScope {
             focus: true
 
             cellWidth: VLCStyle.cover_normal + VLCStyle.margin_small
-            cellHeight: VLCStyle.cover_normal + VLCStyle.fontHeight_normal + VLCStyle.margin_small
+            cellHeight: VLCStyle.cover_normal + VLCStyle.fontHeight_normal
 
             onSelectAll: delegateModel.selectAll()
             onSelectionUpdated: delegateModel.updateSelection( keyModifiers, oldIndex, newIndex )
