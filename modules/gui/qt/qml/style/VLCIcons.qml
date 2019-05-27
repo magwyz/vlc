@@ -150,5 +150,6 @@ Item {
     property string menu : "\ue075"
     property string topbar_previous: "\ue076"
     property string topbar_next: "\ue077"
+    property string topbar_filter: "\ue078"
 
 }
