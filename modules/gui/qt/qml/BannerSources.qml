@@ -85,8 +85,38 @@ Utils.NavigableFocusScope {
 
                 spacing: VLCStyle.margin_small
 
-                KeyNavigation.left: history_back
-                KeyNavigation.down: history_back
+                focus: true
+
+                // KeyNavigation states
+                states: [
+                    State {
+                        name: "no_history"
+                        when: history.nextEmpty && history.previousEmpty
+                        PropertyChanges {
+                            target: buttonView
+                            KeyNavigation.left: searchBox
+                            KeyNavigation.down: searchBox
+                        }
+                    },
+                    State {
+                        name: "has_previous_history"
+                        when: !history.previousEmpty
+                        PropertyChanges {
+                            target: buttonView
+                            KeyNavigation.left: history_back
+                            KeyNavigation.down: history_back
+                        }
+                    },
+                    State {
+                        name: "has_only_next_history"
+                        when: !history.nextEmpty && history.previousEmpty
+                        PropertyChanges {
+                            target: buttonView
+                            KeyNavigation.left: history_next
+                            KeyNavigation.down: history_next
+                        }
+                    }
+                ]
 
                 Component.onCompleted: {
                     buttonView.contentItem.focus = true
@@ -181,7 +211,6 @@ Utils.NavigableFocusScope {
 
                 Utils.IconToolButton {
                     id: history_back
-                    focus: true
                     size: VLCStyle.icon_normal
                     Layout.minimumWidth: width
                     text: VLCIcons.topbar_previous
