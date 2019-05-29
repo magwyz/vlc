@@ -308,6 +308,13 @@ Utils.NavigableFocusScope {
                     KeyNavigation.up: buttonView
                 }
 
+                Utils.IconToolButton {
+                    id: sort_btn
+
+                    size: VLCStyle.icon_normal
+                    text: VLCIcons.topbar_sort
+                }
+
                 /* Selector to choose a specific sorting operation */
                 Utils.ComboBoxExt {
                     id: combo

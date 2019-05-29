@@ -151,5 +151,6 @@ Item {
     property string topbar_previous: "\ue076"
     property string topbar_next: "\ue077"
     property string topbar_filter: "\ue078"
+    property string topbar_sort: "\ue079"
 
 }
