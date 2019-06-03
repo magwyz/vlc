@@ -64,7 +64,7 @@ Item {
                     width: VLCStyle.cover_normal
                     height: VLCStyle.cover_normal - VLCStyle.margin_small
                     anchors.horizontalCenter: parent.horizontalCenter
-                    property bool highlighted: root.activeFocus
+                    property bool highlighted: selected || root.activeFocus
 
                     Rectangle {
                         id: cover_bg
