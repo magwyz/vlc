@@ -35,7 +35,7 @@ ToolButton {
 
         Rectangle {
             anchors.fill: parent
-            visible: control.activeFocus || control.hovered
+            visible: control.activeFocus || control.hovered || control.highlighted
             color: highlightColor
         }
 
