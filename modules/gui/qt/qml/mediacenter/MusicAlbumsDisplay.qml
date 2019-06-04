@@ -116,24 +116,27 @@ Utils.NavigableFocusScope {
             cellWidth: VLCStyle.cover_normal + VLCStyle.margin_small
             cellHeight: VLCStyle.cover_normal + VLCStyle.fontHeight_normal * 2
 
-            customDelegate: Utils.GridItem {
-                property variant model: MLAlbumModel{}
-                property int index
-                shiftX: view.currentItem.shiftX(model.index)
-                image: model.cover || VLCStyle.noArtAlbum
-                title: model.title || qsTr("Unknown title")
-                subtitle: model.main_artist || qsTr("Unknown artist")
-                //selected: element.DelegateModel.inSelected || view.currentItem.currentIndex === index
-                selected: delegateModel.items.get(index).inSelected
+            gridDelegate: Utils.GridItem {
+                property variant delegateModelItem: ({
+                    model: ({}),
+                    itemsIndex: 0,
+                    inSelected: false
+                })
+
+                shiftX: view.currentItem.shiftX(delegateModelItem.itemsIndex)
+                image: delegateModelItem.model.cover || VLCStyle.noArtAlbum
+                title: delegateModelItem.model.title || qsTr("Unknown title")
+                subtitle: delegateModelItem.model.main_artist || qsTr("Unknown artist")
+                selected: delegateModelItem.inSelected
                 onItemClicked : {
-                    delegateModel.updateSelection( modifier , view.currentItem.currentIndex, index)
-                    view.currentItem.currentIndex = index
+                    delegateModel.updateSelection( modifier , view.currentItem.currentIndex, delegateModelItem.itemsIndex)
+                    view.currentItem.currentIndex = delegateModelItem.itemsIndex
                     //view.currentItem.forceActiveFocus()
-                    view._switchExpandItem( index )
+                    view._switchExpandItem( delegateModelItem.itemsIndex )
 
                 }
-                onPlayClicked: medialib.addAndPlay( model.id )
-                onAddToPlaylistClicked : medialib.addToPlaylist( model.id )
+                onPlayClicked: medialib.addAndPlay( delegateModelItem.model.id )
+                onAddToPlaylistClicked : medialib.addToPlaylist( delegateModelItem.model.id )
             }
 
             expandDelegate:  Rectangle {

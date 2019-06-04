@@ -42,7 +42,7 @@ NavigableFocusScope {
     property int _newExpandIndex: -1
 
     //delegate to display the extended item
-    property Component customDelegate: Item{}
+    property Component gridDelegate: Item{}
     property Component expandDelegate: Item{}
 
     //signals emitted when selected items is updated from keyboard
@@ -184,21 +184,11 @@ NavigableFocusScope {
             }
             idChildrenMap = toKeep
 
-            /*console.log("-----")
-            console.log("nbItems", nbItems)
-
-            console.log("toKeep: ", Object.keys(toKeep).length)
-            console.log("toUse: ", toUse.length)
-
-            console.log("firstId", firstId)
-            console.log("lastId", lastId)
-            console.log("topGridEndId", topGridEndId)*/
-
             // Create delegates if we do not have enough
             if (nbItems > toUse.length + Object.keys(toKeep).length) {
                 var toCreate = nbItems - (toUse.length + Object.keys(toKeep).length)
                 for (i = 0; i < toCreate; ++i) {
-                    val = root.customDelegate.createObject(contentItem);
+                    val = root.gridDelegate.createObject(contentItem);
                     toUse.push(val)
                 }
             }
@@ -207,8 +197,7 @@ NavigableFocusScope {
             for (i = firstId; i < topGridEndId; ++i) {
                 var pos = getItemPos(i)
                 var item = getChild(i, toUse)
-                item.model = model.items.get(i).model
-                item.index = i
+                item.delegateModelItem = model.items.get(i)
                 item.x = pos[0]
                 item.y = pos[1]
                 item.visible = true
@@ -220,8 +209,7 @@ NavigableFocusScope {
             for (i = topGridEndId; i < lastId; ++i) {
                 pos = getItemPos(i)
                 item = getChild(i, toUse)
-                item.model = model.items.get(i).model
-                item.index = i
+                item.delegateModelItem = model.items.get(i)
                 item.x = pos[0]
                 item.y = pos[1] + expandItem.height
                 item.visible = true
@@ -413,6 +401,7 @@ NavigableFocusScope {
             var oldIndex = currentIndex
             currentIndex = newIndex
             root.selectionUpdated(event.modifiers, oldIndex, newIndex)
+            flickable.layout()
         }
 
         if (!event.accepted)
