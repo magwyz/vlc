@@ -65,11 +65,13 @@ Utils.NavigableFocusScope {
 
         onOpened: {
             button.KeyNavigation.down = list
+            button.highlighted = true
             list.forceActiveFocus()
         }
 
         onClosed: {
             button.KeyNavigation.down = null
+            button.highlighted = false
             button.forceActiveFocus()
         }
 
@@ -79,6 +81,7 @@ Utils.NavigableFocusScope {
             clip: true
             implicitHeight: contentHeight
             model: root.model
+            spacing: 0
 
             highlight: Rectangle {
                 color: VLCStyle.colors.accent
@@ -95,18 +98,42 @@ Utils.NavigableFocusScope {
             ScrollIndicator.vertical: ScrollIndicator { }
 
             delegate: ItemDelegate {
-                width: root.listWidth
+                id: itemDelegate
+
+                anchors.left: parent.left
+                anchors.right: parent.right
+                padding: 0
+
                 background: Item {}
-                contentItem: Text {
-                    text: root.textRole ? (Array.isArray(root.model) ? modelData[root.textRole] : model[root.textRole]) : modelData
-                    anchors.fill: parent
-                    leftPadding: VLCStyle.margin_xsmall
-                    rightPadding: VLCStyle.margin_xsmall
-                    color: VLCStyle.colors.buttonText
-                    elide: Text.ElideRight
-                    verticalAlignment: Text.AlignVCenter
+                contentItem: Item {
+                    implicitHeight: itemText.implicitHeight
+
+                    Rectangle {
+                        anchors.fill: parent
+                        color: VLCStyle.colors.accent
+                        visible: mouseArea.containsMouse
+                    }
+
+                    Text {
+                        id: itemText
+                        text: root.textRole ? (Array.isArray(root.model) ? modelData[root.textRole] : model[root.textRole]) : modelData
+                        anchors.fill: parent
+                        topPadding: VLCStyle.margin_xxsmall
+                        bottomPadding: VLCStyle.margin_xxsmall
+                        leftPadding: VLCStyle.margin_xsmall
+                        rightPadding: VLCStyle.margin_xsmall
+                        color: VLCStyle.colors.buttonText
+                        elide: Text.ElideRight
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    MouseArea {
+                        id: mouseArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: itemDelegate.clicked(mouse)
+                    }
                 }
-                highlighted: list.currentIndex === index
 
                 onClicked: {
                     root.currentIndex = index
