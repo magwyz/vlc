@@ -250,10 +250,4 @@
         <file alias="Dialogs.qml">qml/dialogs/Dialogs.qml</file>
         <file alias="ModalDialog.qml">qml/dialogs/ModalDialog.qml</file>
     </qresource>
-    <qresource prefix="/topbar">
-        <file alias="movie.svg">pixmaps/topbar/movie.svg</file>
-        <file alias="music.svg">pixmaps/topbar/music.svg</file>
-        <file alias="network.svg">pixmaps/topbar/network.svg</file>
-        <file alias="previous.svg">pixmaps/topbar/previous.svg</file>
-    </qresource>
 </RCC>

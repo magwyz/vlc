@@ -152,5 +152,7 @@ Item {
     property string topbar_next: "\ue077"
     property string topbar_filter: "\ue078"
     property string topbar_sort: "\ue079"
-
+    property string topbar_video: "\ue07a"
+    property string topbar_music: "\ue07b"
+    property string topbar_network: "\ue07c"
 }

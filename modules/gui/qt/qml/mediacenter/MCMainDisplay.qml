@@ -51,17 +51,17 @@ Utils.NavigableFocusScope {
     readonly property var pageModel: [
         {
             displayText: qsTr("Video"),
-            pic: "qrc:///topbar/movie.svg",
+            icon: VLCIcons.topbar_video,
             name: "video",
             component: videoComp
         }, {
             displayText: qsTr("Music"),
-            pic: "qrc:///topbar/music.svg",
+            icon: VLCIcons.topbar_music,
             name: "music",
             component: musicComp
         }, {
             displayText: qsTr("Network"),
-            pic: "qrc:///topbar/network.svg",
+            icon: VLCIcons.topbar_network,
             name: "network",
             component: networkComp
         }
@@ -72,10 +72,10 @@ Utils.NavigableFocusScope {
         Component.onCompleted: {
             pageModel.forEach(function(e) {
                 append({
-                           displayText: e.displayText,
-                           pic: e.pic,
-                           name: e.name,
-                       })
+                   displayText: e.displayText,
+                   icon: e.icon,
+                   name: e.name,
+               })
             })
         }
     }
