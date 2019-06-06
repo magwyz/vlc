@@ -46,6 +46,8 @@ NavigableFocusScope {
     property alias headerItem: view.headerItem
     property color headerColor
 
+    property alias delegateModel: delegateModel
+
     Utils.SelectableDelegateModel {
         id: delegateModel
 
@@ -69,6 +71,7 @@ NavigableFocusScope {
                     anchors.fill: parent
                     hoverEnabled: true
                     onClicked: {
+                        console.log("test2")
                         delegateModel.updateSelection( mouse.modifiers , view.currentIndex, index)
                         view.currentIndex = rowModel.index
                         lineView.forceActiveFocus()
@@ -196,7 +199,10 @@ NavigableFocusScope {
         }
 
         onSelectAll: delegateModel.selectAll()
-        onSelectionUpdated: delegateModel.updateSelection( keyModifiers, oldIndex, newIndex )
+        onSelectionUpdated: {
+            console.log("test")
+            delegateModel.updateSelection( keyModifiers, oldIndex, newIndex )
+        }
         onActionLeft: root.actionLeft(index)
         onActionRight: root.actionRight(index)
         onActionUp: root.actionUp(index)

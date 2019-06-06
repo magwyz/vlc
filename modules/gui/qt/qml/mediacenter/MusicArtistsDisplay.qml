@@ -40,8 +40,12 @@ Utils.NavigableFocusScope {
             ml: medialib
         }
 
-        Component.onCompleted: {
-            artistId = items.get(0).model.id
+        Connections {
+            target: items
+            onChanged: {
+                if (items.count > 0)
+                    artistId = items.get(0).model.id
+            }
         }
 
         delegate: Utils.ListItem {
@@ -116,6 +120,8 @@ Utils.NavigableFocusScope {
 
     Row {
         anchors.fill: parent
+        visible: delegateModel.items.count > 0
+
         Utils.KeyNavigableListView {
             width: parent.width * 0.25
             height: parent.height

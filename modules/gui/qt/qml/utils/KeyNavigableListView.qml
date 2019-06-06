@@ -102,7 +102,8 @@ NavigableFocusScope {
             onActionRight: listview_id.actionRight(currentIndex)
             onActionLeft: listview_id.actionLeft(currentIndex)
             onActionDown: {
-                if ( currentIndex !== modelCount - 1 ) {
+                console.log("visible", visible)
+                if ( visible && currentIndex !== modelCount - 1 ) {
                     var newIndex = currentIndex + 1
                     var oldIndex = currentIndex
                     currentIndex = newIndex
@@ -112,7 +113,8 @@ NavigableFocusScope {
                 }
             }
             onActionUp: {
-                if ( currentIndex !== 0 ) {
+                console.log("visible", visible)
+                if ( visible && currentIndex !== 0 ) {
                     var newIndex = currentIndex - 1
                     var oldIndex = currentIndex
                     currentIndex = newIndex
@@ -137,7 +139,7 @@ NavigableFocusScope {
                 newIndex = Math.max(0, currentIndex - 10)
             }
 
-            if (newIndex != -1) {
+            if (newIndex >= 0 && newIndex < modelCount) {
                 var oldIndex = currentIndex
                 currentIndex = newIndex
                 event.accepted = true
