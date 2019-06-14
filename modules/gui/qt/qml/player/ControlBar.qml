@@ -77,6 +77,15 @@ Utils.NavigableFocusScope {
             Keys.priority: Keys.AfterItem
             Keys.onPressed: defaultKeyAction(event, 0)
 
+            Utils.IconToolButton {
+                anchors.left: parent.left
+                anchors.verticalCenter: parent.verticalCenter
+                KeyNavigation.right: randomBtn
+                size: VLCStyle.icon_large
+                text: VLCIcons.exit
+                onClicked: history.previous(History.Go)
+            }
+
             ToolBar {
                 id: buttonstoolbar
                 focusPolicy: Qt.StrongFocus
