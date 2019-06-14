@@ -168,9 +168,7 @@ Utils.NavigableFocusScope {
 
                                 Label {
                                     id: icon
-                                    anchors {
-                                        verticalCenter: parent.verticalCenter
-                                    }
+                                    anchors.verticalCenter: parent.verticalCenter
                                     color: VLCStyle.colors.buttonText
 
                                     font.pixelSize: VLCStyle.icon_topbar
@@ -188,9 +186,7 @@ Utils.NavigableFocusScope {
                                     color: VLCStyle.colors.text
                                     padding: VLCStyle.margin_xxsmall
 
-                                    anchors {
-                                        bottom: parent.bottom
-                                    }
+                                    anchors.verticalCenter: parent.verticalCenter
                                 }
                             }
 
