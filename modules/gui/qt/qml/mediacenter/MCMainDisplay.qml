@@ -130,7 +130,12 @@ Utils.NavigableFocusScope {
                         contentModel = stackView.currentItem.contentModel
                     }
 
-                    onActionDown: stackViewZone.focus = true
+                    onActionDown: {
+                        if (miniPlayer.expanded)
+                            stackViewZone.focus = true
+                        else
+                            stackView.focus = true
+                    }
                     onActionLeft: root.actionLeft(index)
                     onActionRight: root.actionRight(index)
                     onActionUp: root.actionUp(index)
